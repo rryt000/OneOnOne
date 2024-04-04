@@ -90,7 +90,7 @@ const RegisterPage = () => {
                 </div>
                 <button type="submit" className="btn btn-primary col-12 mt-3">Create Account</button>
                 <div className="text-center mt-2">
-                  <p>Already have an account? <a href="login.html">Log In</a></p>
+                  <p>Already have an account? <a href="/login">Log In</a></p>
                 </div>
               </form>
             </div>

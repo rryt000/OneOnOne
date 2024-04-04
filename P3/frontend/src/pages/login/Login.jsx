@@ -1,0 +1,62 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Login.css';
+import { useAuth } from "../../hooks/AuthProvider";
+
+const LoginPage = () => {
+    const [input, setInput] = useState({
+      username: "",
+      password: "",
+    });
+  
+    const auth = useAuth();
+    const navigate = useNavigate();
+  
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      if (input.username !== "" && input.password !== "") {
+        auth.loginAction(input);
+        navigate('/dashboard');
+        return;
+      }
+      alert("Please provide a valid input.");
+    };
+  
+    const handleInput = (e) => {
+      const { name, value } = e.target;
+      setInput(prev => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
+  
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+        <div className="card" style={{ minWidth: "300px" }}>
+          <div className="card-body">
+            <h3 className="card-title text-center text-secondary">Welcome Back!</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="text-secondary mb-1" htmlFor="username">Username</label>
+                <input type="text" className="form-control" id="username" name="username" placeholder="Username" value={input.username} onChange={handleInput} required />
+              </div>
+              <div className="form-group mt-2">
+                <label className="text-secondary mb-1" htmlFor="passwordInput">Password</label>
+                <input type="password" className="form-control" id="passwordInput" name="password" placeholder="Enter Password" value={input.password} onChange={handleInput} required />
+              </div>
+              <div className="d-flex justify-content-center">
+                <Link to="/forgot-password" className="text-primary">Forgot your password?</Link>
+              </div>
+              <button type="submit" className="btn btn-primary w-100 mt-3">Log In</button>
+              <div className="d-flex justify-content-center align-items-center mt-2">
+                <p className="text-secondary">Need an account?</p>&nbsp;<Link to="/register" className="text-primary">Register</Link>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  export default LoginPage;

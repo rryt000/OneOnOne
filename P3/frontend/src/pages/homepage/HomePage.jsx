@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
 
@@ -12,7 +12,7 @@ const HomePage = () => {
           <p className="lead">Say goodbye to the hassle of coordinating schedules. With our intuitive platform, effortlessly arrange 1-on-1 meetings with just a few clicks. Prioritize what matters most – meaningful connections – while we handle the logistics for you.</p>
         </div>
         <section className="call-to-action text-center my-4">
-          <Link to="/login"><a href="/login" className="btn btn-primary btn-lg">Get Started</a></Link>
+          <Link to="/login"><a className="btn btn-primary btn-lg">Get Started</a></Link>
           <a href="#" className="btn btn-secondary btn-lg">Learn More</a> {/* Updated href to "#" for the 'Learn More' button */}
         </section>
       </header>
@@ -33,7 +33,7 @@ const HomePage = () => {
               <p>Set up and view your meetings with a user-friendly calendar. Automatically find suitable times for everyone and avoid scheduling conflicts.</p>
             </div>
           </div>
-          <a href="login.html" className="btn btn-primary btn-lg">Get Started</a>
+          <a href="/login" className="btn btn-primary btn-lg">Get Started</a>
         </section>
       </main>
       <footer className="footer text-center">
