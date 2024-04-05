@@ -1,15 +1,18 @@
 import React from 'react';
 import './Dashboard.css';
+import { useAuth } from "../../hooks/AuthProvider";
+import { useNavigate, Link } from 'react-router-dom';
+
 
 const Dashboard = () => {
+
+  const auth = useAuth();
+
   return (
     <>
       <nav className="navbar navbar-expand-lg">
         <div className="container">
-          <a className="navbar-brand" href="Dashboard.html">1on1</a>
-          <button className="navbar-toggler" type="button" dataBsToggle="collapse" dataBsTarget="#navbarNav" ariaControls="navbarNav" ariaExpanded="false" ariaLabel="Toggle navigation">
-            <span className="navbar-toggler-icon"></span>
-          </button>
+          <a className="navbar-brand" href="/dashboard">1on1</a>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav me-auto mb-lg-0">
               <li className="nav-item"><a className="nav-link current" href="Dashboard.html">Dashboard</a></li>
@@ -18,6 +21,11 @@ const Dashboard = () => {
             </ul>
             <ul className="navbar-nav ms-auto">
               <li className="nav-item"><a className="nav-link" href="Account.html">Account</a></li>
+              <li className="nav-item"><a className="nav-link" href="#!" onClick={(e) => {
+                e.preventDefault();
+                auth.logOut();
+              }}>Logout</a>
+              </li>
             </ul>
           </div>
         </div>
@@ -25,7 +33,7 @@ const Dashboard = () => {
 
       <main>
         <div className="container-sm">
-          <h1 className="text-center my-4">Welcome back user.</h1>
+          <h1 className="text-center my-4">Welcome back {auth.user?.username}.</h1>
           <div className="row row-gap-4">
             <div className="d-flex flex-column align-items-center col-12">
               <h2>Upcoming Meetings</h2>

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is installed
 import './Register.css'; // Adjust the CSS file name as necessary
+import { useAuth } from "../../hooks/AuthProvider";
+import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterPage = () => {
   // State for form fields
@@ -11,7 +13,15 @@ const RegisterPage = () => {
   const [first_name, setFirstName] = useState('');
   const [last_name, setLastName] = useState('');
 
-  // Handle form submission
+  const auth = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (auth) {
+      navigate('/dashboard');
+    }
+  }, [auth, navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
   
@@ -90,7 +100,7 @@ const RegisterPage = () => {
                 </div>
                 <button type="submit" className="btn btn-primary col-12 mt-3">Create Account</button>
                 <div className="text-center mt-2">
-                  <p>Already have an account? <a href="/login">Log In</a></p>
+                  <p>Already have an account? <Link to="/login">Log In</Link></p>
                 </div>
               </form>
             </div>

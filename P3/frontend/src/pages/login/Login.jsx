@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
@@ -13,10 +13,17 @@ const LoginPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
   
+    useEffect(() => {
+      if (auth.user) {
+        navigate('/dashboard');
+      }
+    }, [auth, navigate]);
+
     const handleSubmit = (event) => {
       event.preventDefault();
       if (input.username !== "" && input.password !== "") {
         auth.loginAction(input);
+        console.log(auth.user)
         navigate('/dashboard');
         return;
       }

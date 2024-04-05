@@ -12,7 +12,7 @@ const HomePage = () => {
           <p className="lead">Say goodbye to the hassle of coordinating schedules. With our intuitive platform, effortlessly arrange 1-on-1 meetings with just a few clicks. Prioritize what matters most – meaningful connections – while we handle the logistics for you.</p>
         </div>
         <section className="call-to-action text-center my-4">
-          <Link to="/login"><a className="btn btn-primary btn-lg">Get Started</a></Link>
+          <Link to="/login" className="btn btn-primary btn-lg">Get Started</Link>
           <a href="#" className="btn btn-secondary btn-lg">Learn More</a> {/* Updated href to "#" for the 'Learn More' button */}
         </section>
       </header>
