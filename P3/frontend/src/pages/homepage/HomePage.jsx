@@ -1,9 +1,15 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './HomePage.css';
 
 const HomePage = () => {
+  const mainRef = useRef(null);
+
+  const handleScrollToFeatures = () => {
+    mainRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <>
       <header className="hero-section text-center">
@@ -13,10 +19,10 @@ const HomePage = () => {
         </div>
         <section className="call-to-action text-center my-4">
           <Link to="/login" className="btn btn-primary btn-lg">Get Started</Link>
-          <a href="#" className="btn btn-secondary btn-lg">Learn More</a> {/* Updated href to "#" for the 'Learn More' button */}
+                    <button className="btn btn-primary btn-lg" onClick={handleScrollToFeatures}>Learn More</button>
         </section>
       </header>
-      <main className="container my-5">
+      <main className="container my-5" id="body" ref={mainRef}>
         <section className="features my-4">
           <h2 className="text-center">Features</h2>
           <div className="row">
@@ -33,10 +39,10 @@ const HomePage = () => {
               <p>Set up and view your meetings with a user-friendly calendar. Automatically find suitable times for everyone and avoid scheduling conflicts.</p>
             </div>
           </div>
-          <a href="/login" className="btn btn-primary btn-lg">Get Started</a>
+          <Link to="/login" className="btn btn-primary btn-lg">Get Started</Link>
         </section>
       </main>
-      <footer className="footer text-center">
+      <footer className="footer text-center align-items-center">
         <p>&copy; 2024 1on1 Meetings. All rights reserved.</p>
       </footer>
     </>

@@ -7,6 +7,8 @@ import HomePage from "./pages/homepage/HomePage";
 import LoginPage from "./pages/login/Login";
 import RegisterPage from "./pages/register/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
+import AccountPage from "./pages/account/Account";
+
 
 function App() {
   return (
@@ -18,6 +20,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/account" element={<AccountPage />} />
           </Route>
         </Routes>
       </AuthProvider>

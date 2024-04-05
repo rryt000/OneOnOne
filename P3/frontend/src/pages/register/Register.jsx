@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap is installed
-import './Register.css'; // Adjust the CSS file name as necessary
-import { useAuth } from "../../hooks/AuthProvider";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './Register.css'; // Ensure this matches the correct path to your CSS file
+import { useAuth } from "../../hooks/AuthProvider"; // Adjust the path as necessary
 import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterPage = () => {
-  // State for form fields
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,58 +12,32 @@ const RegisterPage = () => {
   const [first_name, setFirstName] = useState('');
   const [last_name, setLastName] = useState('');
 
-  const auth = useAuth();
+  const { registerAction, user } = useAuth();
   const navigate = useNavigate();
   
   useEffect(() => {
-    if (auth) {
+    if (user) {
       navigate('/dashboard');
     }
-  }, [auth, navigate]);
+  }, [user, navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
-    // Construct the form data object
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
     const formData = {
       username,
       email,
       password,
-      confirmPassword,
       first_name,
       last_name,
     };
-  
-    try {
-      // Send a POST request
-      const response = await fetch('http://127.0.0.1:8000/account/register/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-  
-      // Wait for the response and convert it to JSON
-      const data = await response.json();
-  
-      // Check if the request was successful
-      if (response.ok) {
-        // Handle success - you might want to clear the form or redirect the user
-        console.log('Registration successful:', data);
-        // Redirect or update UI here
-      } else {
-        // Handle errors - the server might return error messages or status codes
-        console.error('Registration failed:', data.error);
-        // Update UI to show error message
-      }
-    } catch (error) {
-      // Handle network errors
-      console.error('Network error:', error);
-      // Update UI to show error message
-    }
+
+    await registerAction(formData);
   };
-  
 
   return (
     <main className="d-flex justify-content-center align-items-center vh-100">

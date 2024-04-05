@@ -1,61 +1,61 @@
-import { useContext, createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
-  // Initialize user from localStorage to persist login state across refreshes
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem("user");
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user") || "null"));
   const [token, setToken] = useState(localStorage.getItem("site") || "");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Persist user and token changes to localStorage
-    if (token) {
-      localStorage.setItem("site", token);
-    } else {
-      localStorage.removeItem("site");
-    }
-
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
+    // Persist token changes to localStorage
+    token ? localStorage.setItem("site", token) : localStorage.removeItem("site");
+    // Persist user changes to localStorage
+    user ? localStorage.setItem("user", JSON.stringify(user)) : localStorage.removeItem("user");
   }, [user, token]);
 
+  // Handles user login
   const loginAction = async (data) => {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/account/login/", data, {
-        headers: { "Content-Type": "application/json" },
-      });
-      const res = response.data;
+      const response = await axios.post("http://127.0.0.1:8000/account/login/", data);
+      const { user, access: token } = response.data;
 
-      if (res.user && res.access) {
-        setUser(res.user); // No need to stringify here, we'll stringify for localStorage
-        setToken(res.access);
-        // Navigate happens in useEffect to ensure localStorage has been updated
+      if (user && token) {
+        setUser(user);
+        setToken(token);
+        navigate("/dashboard");
       } else {
-        throw new Error(res.message || "Login failed");
+        throw new Error("Login failed");
       }
     } catch (err) {
-      console.error(err.message);
+      console.error("Login error:", err);
+      // Optionally, handle login errors (e.g., showing a notification)
     }
   };
 
+  // Handles user logout
   const logOut = () => {
     setUser(null);
     setToken("");
-    // localStorage removal handled by useEffect
     navigate("/login");
   };
 
+  // Function to handle user registration
+  const registerAction = async (data) => {
+    try {
+      await axios.post("http://127.0.0.1:8000/account/register/", data);
+      // If registration is successful, automatically log the user in
+      await loginAction({ username: data.username, password: data.password });
+    } catch (err) {
+      console.error("Registration error:", err);
+      // Optionally, handle registration errors
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loginAction, logOut }}>
+    <AuthContext.Provider value={{ user, token, loginAction, logOut, registerAction }}>
       {children}
     </AuthContext.Provider>
   );
