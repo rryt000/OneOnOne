@@ -15,8 +15,6 @@ class ContactListAPIView(APIView):
         Retrieve a specific contact list by its primary key.
         """
         user = request.user
-        if user.is_anonymous or not get_user_model().objects.filter(pk=user.pk).exists():
-            return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         contact_list = ContactList.objects.get(user=user.id)
         serializer = ContactListSerializer(contact_list)
         return Response(serializer.data)
@@ -25,21 +23,14 @@ class ContactListAPIView(APIView):
         '''
         Remove a contact from the contact list.
         '''
-        user = request.user
-        if user.is_anonymous or not get_user_model().objects.filter(pk=user.pk).exists():
-            return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
-        contact_list = ContactList.objects.get(user=user)
+        contact_list = ContactList.objects.get(user=request.user)
         contact_email = request.data.get('email')
         if contact_email:
-            if  get_user_model().objects.filter(email=contact_email).exists():
-                removee = get_user_model().objects.get(email=contact_email)
-            else:
-                return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
-            if removee in contact_list.contacts.all():
-                contact_list.unadd(removee)
-                return Response({'message': 'Sucessfully removed user from contact list'}, status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response({'error': 'User not in contact list.'}, status=status.HTTP_404_NOT_FOUND)
+            removee = get_user_model().objects.get(email=contact_email)
+            if not removee:
+                Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            contact_list.unadd(removee)
+            return Response({'message': 'Sucessfully removed user from contact list'}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({'error': 'Missing email'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -52,11 +43,9 @@ class ContactRequestAPIView(APIView):
         Retrieve a specific contact request by its primary key
         or retrieve all incoming contact requests for the current user.
         """
-        user = request.user
-        if user.is_anonymous or not get_user_model().objects.filter(pk=user.pk).exists():
-            return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
-        incoming_requests = ContactRequest.objects.filter(receiver=user, is_active=True)
+        incoming_requests = ContactRequest.objects.filter(receiver=request.user, is_active=True)
         serializer = ContactRequestSerializer(incoming_requests, many=True)
+        serializer.is_valid(raise_exception=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -64,8 +53,6 @@ class ContactRequestAPIView(APIView):
         Create a new contact request.
         """
         sender = request.user
-        if sender.is_anonymous or not get_user_model().objects.filter(pk=sender.pk).exists():
-            return Response({'error': 'Sender does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         receiver_username = request.data.get('receiver')
 
         if sender.username == receiver_username:
@@ -94,17 +81,13 @@ class ContactRequestAPIView(APIView):
         Accept or Decline an existing contact request.
         """
         contact_request_id = request.data.get('id')  # Get the ID from the request body
-        try:
-            contact_request = ContactRequest.objects.get(pk=contact_request_id)
-        except ContactRequest.DoesNotExist:
+        contact_request = ContactRequest.objects.get(pk=contact_request_id)
+        if not contact_request:
             Response({'error': 'Contact request does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check if the authenticated user is the receiver of the contact request
         if request.user != contact_request.receiver:
             raise PermissionDenied("You are not authorized to perform this action.")
-
-        if not contact_request.is_active:
-            return Response({'error': 'Contact request inactive;'}, status=status.HTTP_400_BAD_REQUEST)
 
         action = request.data.get('action')  # 'accept' or 'decline'
 
@@ -115,16 +98,15 @@ class ContactRequestAPIView(APIView):
         else:
             return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({'message':'Action Succssful.'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-    # def delete(self, request, pk):
-    #     """
-    #     Delete an existing contact request.
-    #     """
-    #     try:
-    #         contact_request = ContactRequest.objects.get(pk=pk)
-    #     except ContactRequest.DoesNotExist:
-    #         Response({'error': 'Contact request does not exist'}, status=status.HTTP_404_NOT_FOUND)
-    #     contact_request.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk):
+        """
+        Delete an existing contact request.
+        """
+        contact_request = ContactRequest.objects.get(pk=pk)
+        if not contact_request:
+            Response({'error': 'Contact request does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        contact_request.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

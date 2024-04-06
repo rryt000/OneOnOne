@@ -11,6 +11,8 @@ from contacts.models import ContactList
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
+from django.db.models import Prefetch
+
 
 
 class CalendarListPrimary(APIView):
@@ -292,29 +294,88 @@ class CalendarContactDelete(APIView):
 
 class TimeSlotVoteView(APIView):
 
+    def post(self, request, **kwargs):
+        calendar_id = self.kwargs['calendar_id']
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+        user = request.user
+        if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists():
+            return Response({"Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
 
-   def post(self, request, calendar_id):
-       calendar = get_object_or_404(Calendar, id=calendar_id)
-       user = request.user
-       if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists():
-           return Response({"Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        #    data = request.data.copy()
+        #    data['calendar'] = calendar_id
+        #    data['contact'] = user.id
+        # serializer.save(calendar=get_object_or_404(Calendar, id=calendar_id))
+       
+        # timeslot_vote = TimeSlotVote.objects.get(calendar=calendar, contact=self.request.user)
+        
+
+        serializer = TimeSlotVoteSerializer(data=request.data)
+
+        if serializer.is_valid():
+            
+            serializer.save(calendar=calendar, contact=self.request.user)
+
+            total_timeslots = TimeSlot.objects.filter(calendar=calendar).count()
+            voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact=user).count()
+            if total_timeslots == voted_timeslots:
+                CalendarContact.objects.filter(calendar=calendar, contact=user).update(has_submitted=True)
 
 
-       data = request.data
-       data['calendar'] = calendar_id
-       data['contact'] = user.id
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-       serializer = TimeSlotVoteSerializer(data=data)
-       if serializer.is_valid():
-           serializer.save()
+    def put(self, request, **kwargs):
+        calendar_id = self.kwargs['calendar_id']
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+        user = request.user
+        if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists():
+            return Response({"Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
 
 
-           total_timeslots = TimeSlot.objects.filter(calendar=calendar).count()
-           voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact=user).count()
-           if total_timeslots == voted_timeslots:
-               CalendarContact.objects.filter(calendar=calendar, contact=user).update(has_submitted=True)
+    #    data = request.data.copy()
+    #    data['calendar'] = calendar_id
+    #    data['contact'] = user.id
+    # serializer.save(calendar=get_object_or_404(Calendar, id=calendar_id))
+        
+        timeslot_vote = TimeSlotVote.objects.get(calendar=calendar, contact=self.request.user)
+        
+
+        serializer = TimeSlotVoteSerializer(timeslot_vote, data=request.data)
+
+        if serializer.is_valid():
+            
+            serializer.save(calendar=calendar, contact=self.request.user)
+
+            total_timeslots = TimeSlot.objects.filter(calendar=calendar).count()
+            voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact=user).count()
+            if total_timeslots == voted_timeslots:
+                CalendarContact.objects.filter(calendar=calendar, contact=user).update(has_submitted=True)
 
 
-           return Response(serializer.data, status=status.HTTP_201_CREATED)
-       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CalendarTimeSlotVotesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, calendar_id):
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+        if calendar.owner != request.user and not CalendarContact.objects.filter(calendar=calendar, contact=request.user).exists():
+            return Response({"error": "You do not have permission to view this calendar"}, status=status.HTTP_403_FORBIDDEN)
+
+        timeslots = TimeSlot.objects.filter(calendar=calendar).prefetch_related(
+            Prefetch('timeslotvote_set', queryset=TimeSlotVote.objects.select_related('contact'))
+        )
+
+        data = []
+        for timeslot in timeslots:
+            votes = [{"contact": vote.contact.username, "preference": vote.preference} for vote in timeslot.timeslotvote_set.all()]
+            data.append({
+                "timeslot_id": timeslot.id,
+                "start_date_time": timeslot.start_date_time,
+                "votes": votes
+            })
+
+        return Response(data)

@@ -112,6 +112,13 @@ TimeSlot Vote
         "timeslot": "integer",
         "preference": "integer"
 
+Calendar TimeSlot Votes
+
+    Endpoint: calendars/<int:calendar_id>/timeslot-votes/
+    Method: GET
+    Description: Retrieve the votes for each timeslot in a specific calendar. This view provides a breakdown of all votes submitted by contacts for the timeslots in the given calendar, including the contact's username and their voting preference for each timeslot.
+
+
 ######################################################################################################################################################
 
 Account:

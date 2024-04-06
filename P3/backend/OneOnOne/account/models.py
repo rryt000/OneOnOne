@@ -58,6 +58,3 @@ class UserData(AbstractUser):
 
     def __str__(self):
         return self.username
-    
-    def set_password(self, raw_password: str | None) -> None:
-        return super().set_password(raw_password)

@@ -40,4 +40,4 @@ class CalendarContactSerializer(serializers.ModelSerializer):
 class TimeSlotVoteSerializer(serializers.ModelSerializer):
    class Meta:
        model = TimeSlotVote
-       fields = ['id', 'calendar', 'contact', 'timeslot', 'preference']
+       fields = ['id', 'timeslot', 'preference']

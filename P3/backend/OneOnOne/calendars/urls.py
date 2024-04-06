@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CalendarListPrimary, CalendarListSecondary, CalendarDetail, TimeSlotList, TimeSlotDetail, CalendarContactList, CalendarContactDetail, CalendarContactDelete, TimeSlotVoteView
+from .views import CalendarListPrimary, CalendarListSecondary, CalendarDetail, TimeSlotList, TimeSlotDetail, CalendarContactList, CalendarContactDetail, CalendarContactDelete, TimeSlotVoteView, CalendarTimeSlotVotesView
 
 
 app_name = 'calendars'
@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:calendar_id>/contacts/detail/', CalendarContactDetail.as_view(), name="contact_detail"),
     path('<int:calendar_id>/contacts/<int:contact_id>/', CalendarContactDelete.as_view(), name="contact_delete"),
     path('<int:calendar_id>/vote/', TimeSlotVoteView.as_view(), name='timeslot_vote'),
+    path('<int:calendar_id>/timeslot-votes/', CalendarTimeSlotVotesView.as_view(), name='calendar_timeslot_votes'),
 ]
