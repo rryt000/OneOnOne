@@ -12,6 +12,7 @@ from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.db.models import Prefetch
+from django.db.models import Sum, Count, Q
 
 
 
@@ -325,7 +326,7 @@ class CalendarContactDelete(APIView):
 
 class TimeSlotVoteView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def post(self, request, **kwargs):
         calendar_id = self.kwargs['calendar_id']
         calendar = get_object_or_404(Calendar, id=calendar_id)
@@ -459,4 +460,58 @@ class CalendarFinalize(APIView):
         calendar.save()
 
         return Response({"message": "Calendar finalized successfully."}, status=status.HTTP_200_OK)
+    
+class CalendarSuggest(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        calendar_id = self.kwargs['calendar_id']
+        user = request.user
+
+        # Ensure the calendar exists and the user is the owner
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+
+        if calendar.owner != user:
+            raise PermissionDenied
+        
+        # check that calendar is submitted.
+        if calendar.status == 'created':
+            return Response({"message": "All users have not submitted their preferences yet."})
+        if calendar.status == 'finalized':
+            return Response({"message": "The calendar has already been finalized."})
+
+        # Aggregate the total preferences for each timeslot, excluding preferences of 0 (Not Available)
+        timeslot_votes = TimeSlotVote.objects.filter(
+            timeslot__calendar=calendar,
+            preference__gt=0
+        ).values(
+            'timeslot'
+        ).annotate(
+            total_preference=Sum('preference'),
+            vote_count=Count('contact', distinct=True)
+        ).order_by('-total_preference')
+
+        # Filter out timeslots where not every contact has voted
+        total_contacts = calendar.calendarcontact_set.count()
+        valid_timeslots = [vote for vote in timeslot_votes if vote['vote_count'] == total_contacts]
+
+        # Fetch the timeslot details for the top 3 (or fewer) valid timeslots
+        timeslot_ids = [vote['timeslot'] for vote in valid_timeslots[:3]]
+        suggested_timeslots = TimeSlot.objects.filter(id__in=timeslot_ids)
+
+        # If there are valid suggested timeslots
+        if suggested_timeslots:
+            suggested_timeslots_data = [{
+                "timeslot_id": ts.id,
+                "start_date_time": ts.start_date_time,
+                "duration": ts.duration,
+                "comment": ts.comment,
+                "total_preference": next((item for item in valid_timeslots if item["timeslot"] == ts.id), {}).get('total_preference', 0)
+            } for ts in suggested_timeslots]
+            
+            message = "Suggested timeslots based on preferences." if len(suggested_timeslots) == 3 else "These are the only possible suggested timeslots."
+            return Response({"message": message, "timeslots": suggested_timeslots_data})
+        
+        # If no valid timeslots are found
+        return Response({"message": "No possible timeslots based on the criteria."})
     
