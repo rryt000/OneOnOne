@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',       
     'rest_framework_simplejwt',
     'django_extensions',
-    'account',
+    'accounts',
     'contacts',
     'calendars',
 ]
@@ -88,7 +88,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = 'account.UserData'
+AUTH_USER_MODEL = 'accounts.UserData'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

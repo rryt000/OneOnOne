@@ -25,12 +25,16 @@ class CalendarListPrimary(APIView):
         calendars = Calendar.objects.filter(owner=request.user)
         serializer = CalendarSerializer(calendars, many=True)
 
+        for calendar in calendars:
+            if calendar.status != 'finalized':
+                calendar.update_submission_status()
+
         return Response(serializer.data)
 
     def post(self, request, **kwargs):
         serializer = CalendarSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(owner=request.user)
+            serializer.save(owner=request.user, status='created')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -45,6 +49,12 @@ class CalendarListSecondary(APIView):
         calendar_ids = CalendarContact.objects.filter(contact=request.user).values_list('calendar', flat=True)
         calendars_from_contacts = Calendar.objects.filter(id__in=calendar_ids)
         serializer = CalendarSerializer(calendars_from_contacts, many=True)
+
+        for calendar_id in calendar_ids:
+            calendar = get_object_or_404(Calendar, id=calendar_id)
+            if calendar.status != 'finalized':
+                calendar.update_submission_status()
+
         return Response(serializer.data)
 
 
@@ -72,11 +82,18 @@ class CalendarDetail(APIView):
         pk = self.kwargs['calendar_id']
         calendar = self.get_object(pk)
         serializer = CalendarSerializer(calendar)
+
+        if calendar.status != 'finalized':
+            calendar.update_submission_status()
+
         return Response(serializer.data)
 
     def put(self, request, **kwargs):
         pk = self.kwargs['calendar_id']
         calendar = self.get_object(pk)
+        if calendar.owner != self.request.user:
+            raise PermissionDenied
+            
         serializer = CalendarSerializer(calendar, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -86,6 +103,8 @@ class CalendarDetail(APIView):
     def delete(self, request, **kwargs):
         pk = self.kwargs['calendar_id']
         calendar = self.get_object(pk)
+        if calendar.owner != self.request.user:
+            raise PermissionDenied
         calendar.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
@@ -187,6 +206,18 @@ class CalendarContactList(APIView):
         calendar_id = self.kwargs['calendar_id']
         calendar_contacts = self.get_object(calendar_id, request.user)
         serializer = CalendarContactSerializer(calendar_contacts, many=True)
+
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+        calendar_contact = CalendarContact.objects.filter(calendar_id=calendar_id)
+        contact_ids = calendar_contact.values_list('contact', flat=True)
+        for contact_id in contact_ids:
+            total_timeslots = TimeSlot.objects.filter(calendar=calendar).count()
+            voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact_id=contact_id).count()
+            if total_timeslots == voted_timeslots:
+                CalendarContact.objects.filter(calendar=calendar, contact_id=contact_id).update(has_submitted=True)
+            else:
+                CalendarContact.objects.filter(calendar=calendar, contact_id=contact_id).update(has_submitted=False)
+
         return Response(serializer.data)
     
 
@@ -293,21 +324,14 @@ class CalendarContactDelete(APIView):
 
 
 class TimeSlotVoteView(APIView):
-
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request, **kwargs):
         calendar_id = self.kwargs['calendar_id']
         calendar = get_object_or_404(Calendar, id=calendar_id)
         user = request.user
         if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists():
             return Response({"Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
-
-        #    data = request.data.copy()
-        #    data['calendar'] = calendar_id
-        #    data['contact'] = user.id
-        # serializer.save(calendar=get_object_or_404(Calendar, id=calendar_id))
-       
-        # timeslot_vote = TimeSlotVote.objects.get(calendar=calendar, contact=self.request.user)
-        
 
         serializer = TimeSlotVoteSerializer(data=request.data)
 
@@ -319,6 +343,8 @@ class TimeSlotVoteView(APIView):
             voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact=user).count()
             if total_timeslots == voted_timeslots:
                 CalendarContact.objects.filter(calendar=calendar, contact=user).update(has_submitted=True)
+            else:
+                CalendarContact.objects.filter(calendar=calendar, contact=user).update(has_submitted=False)
 
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -331,12 +357,6 @@ class TimeSlotVoteView(APIView):
         user = request.user
         if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists():
             return Response({"Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
-
-
-    #    data = request.data.copy()
-    #    data['calendar'] = calendar_id
-    #    data['contact'] = user.id
-    # serializer.save(calendar=get_object_or_404(Calendar, id=calendar_id))
         
         timeslot_vote = TimeSlotVote.objects.get(calendar=calendar, contact=self.request.user)
         
@@ -351,6 +371,8 @@ class TimeSlotVoteView(APIView):
             voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact=user).count()
             if total_timeslots == voted_timeslots:
                 CalendarContact.objects.filter(calendar=calendar, contact=user).update(has_submitted=True)
+            else:
+                CalendarContact.objects.filter(calendar=calendar, contact=user).update(has_submitted=False)
 
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -379,3 +401,62 @@ class CalendarTimeSlotVotesView(APIView):
             })
 
         return Response(data)
+    
+class CalendarFinalize(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        calendar_id = self.kwargs['calendar_id']
+
+        # Fetch the calendar
+        calendar = get_object_or_404(Calendar, pk=calendar_id)
+
+        # Prepare the response data
+        response_data = {
+            "calendar_id": calendar.id,
+            "calendar_name": calendar.name,
+            "is_finalized": calendar.status == 'finalized',
+        }
+
+        # If the calendar is finalized, include the finalized timeslot
+        if calendar.finalized_timeslot:
+            timeslot = {
+                "timeslot_id": calendar.finalized_timeslot.id,
+                "start_date_time": calendar.finalized_timeslot.start_date_time,
+                "duration": calendar.finalized_timeslot.duration,
+                "comment": calendar.finalized_timeslot.comment,
+            }
+        else:
+            timeslot = None
+
+        response_data["finalized_timeslot"] = timeslot
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+    
+    def post(self, request, *args, **kwargs):
+        calendar_id = request.data.get('calendar_id')
+        timeslot_id = request.data.get('timeslot_id')
+
+        # Ensure calendar and timeslot exist and are related
+        calendar = get_object_or_404(Calendar, pk=calendar_id)
+
+        # Check if the user is the owner of the calendar
+        if calendar.owner != request.user:
+            raise PermissionDenied("You do not have permission to finalize this calendar.")
+        
+
+        # Check if the calendar is not already finalized
+        if calendar.status == 'finalized':
+            return Response({"message": "This calendar is already finalized."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Use the 'timeslots' related name to check if the timeslot is one of the calendar's timeslots
+        timeslot = get_object_or_404(calendar.timeslots, pk=timeslot_id)
+
+        # Finalize the calendar
+        calendar.finalized_timeslot = timeslot
+        calendar.status = 'finalized'
+        calendar.save()
+
+        return Response({"message": "Calendar finalized successfully."}, status=status.HTTP_200_OK)
+    
