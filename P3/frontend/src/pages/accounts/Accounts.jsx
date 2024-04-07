@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css'; // Ensure Bootstrap CSS is imported
-import './Account.css'; // Adjust the path to your CSS file as necessary
+import './Accounts.css'; // Adjust the path to your CSS file as necessary
 
 const AccountPage = () => {
     
@@ -23,7 +23,7 @@ const AccountPage = () => {
               <li className="nav-item"><Link className="nav-link" to="/calendar">Calendars</Link></li>
             </ul>
             <ul className="navbar-nav ms-auto">
-              <li className="nav-item"><Link className="nav-link current" to="/account">Account</Link></li>
+              <li className="nav-item"><Link className="nav-link current" to="/accounts">Account</Link></li>
             </ul>
           </div>
         </div>

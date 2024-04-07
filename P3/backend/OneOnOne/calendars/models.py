@@ -7,11 +7,31 @@ class Calendar(models.Model):
     comment = models.TextField(max_length=200, blank=True)
     date_time_created = models.DateTimeField(auto_now_add=True)
     date_time_modified = models.DateTimeField(auto_now=True)
-    date_time_finalization = models.DateTimeField()
+    # date_time_finalization = models.DateTimeField(null=True, blank=True)
+    finalized_timeslot = models.ForeignKey('TimeSlot', on_delete=models.CASCADE, null=True, related_name='finalizing_calendars')
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    status = models.TextField(choices=(
+        ('created', 'In Progress'),
+        ('submitted', 'Submitted'),
+        ('finalized', 'Finalized'),
+    ), default='created')
 
     def __str__(self):
         return f"{self.id} {self.name}"
+    
+    def update_submission_status(self):
+        """Update the calendar's status based on whether all contacts have submitted."""
+        if not self.calendarcontact_set.filter(has_submitted=False).exists():
+            # All contacts have submitted
+            if self.status != 'submitted':  # Check to prevent unnecessary updates
+                self.status = 'submitted'
+                self.save()
+        else:
+            # Not all contacts have submitted
+            if self.status != 'created':  # Check to prevent unnecessary updates
+                self.status = 'created'
+                self.save()
+
 
 class TimeSlot(models.Model):
     

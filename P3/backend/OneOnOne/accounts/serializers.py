@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import UserData
 from contacts.models import ContactList
 
@@ -32,3 +34,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'last_name': {'required': False},
             'password': {'required': False}
         }
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        # First, get the original response which includes the access and refresh tokens
+        data = super().validate(attrs)
+
+        # Add additional user data to the response
+        # Here, you can customize this to include any information you need
+        data['user'] = {
+            'username': self.user.username,
+            'email': self.user.email,
+            # Include any other user fields you need
+        }
+        
+        return data

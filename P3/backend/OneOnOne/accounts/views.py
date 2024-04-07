@@ -1,10 +1,11 @@
 from django.forms import ValidationError
 from rest_framework.views import APIView
-from .serializers import UserSerializer, UserUpdateSerializer
+from .serializers import UserSerializer, UserUpdateSerializer, MyTokenObtainPairSerializer
 from .models import UserData
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 # view for registering users
 class RegisterView(APIView):
@@ -22,7 +23,7 @@ class ProfileView(APIView):
     def put(self, request):
         # Fetch the user instance to update
         user = request.user
-        if not user:
+        if user.is_anonymous:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = UserUpdateSerializer(user, data=request.data)
@@ -58,3 +59,6 @@ class ProfileView(APIView):
         user.save()
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
