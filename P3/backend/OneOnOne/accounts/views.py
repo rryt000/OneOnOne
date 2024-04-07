@@ -49,12 +49,10 @@ class ProfileView(APIView):
 
         if 'password' in data and data['password'].strip():
             password = data['password']
-            try:
-                validate_password(password)
+            if len(password) > 6:     
                 user.set_password(password)
-            except ValidationError as e:
-                errors = list(e.messages)
-                return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': 'Password too short.'}, status=status.HTTP_400_BAD_REQUEST)
                     
         user.save()
         serializer = UserSerializer(request.user)

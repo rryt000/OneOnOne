@@ -18,7 +18,7 @@ const Dashboard = () => {
               <li className="nav-item"><a className="nav-link" href="Calendar.html">Calendars</a></li>
             </ul>
             <ul className="navbar-nav ms-auto">
-              <li className="nav-item"><a className="nav-link" href="/account">Account</a></li>
+              <li className="nav-item"><a className="nav-link" href="/accounts">Account</a></li>
               <li className="nav-item"><a className="nav-link" href="#!" onClick={(e) => {
                 e.preventDefault();
                 auth.logOut();
