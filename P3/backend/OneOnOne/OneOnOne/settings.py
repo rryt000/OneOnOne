@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,6 +78,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'OneOnOne.wsgi.application'
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # Set access token lifetime to 5 minutes
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Set refresh token lifetime to 1 day
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    # Other configurations can be added here
+}
 
 
 # Database

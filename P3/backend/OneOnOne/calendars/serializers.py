@@ -9,8 +9,8 @@ class CalendarSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Calendar
-        fields = ['id', 'name', 'comment', 'date_time_created', 'date_time_modified', 'date_time_finalization', 'owner_id', 'owner_username', 'status']
-        read_only_fields = ['date_time_created', 'date_time_modified', 'owner_id', 'owner_username', 'status']
+        fields = ['id', 'name', 'comment', 'date_time_created', 'date_time_modified', 'finalized_timeslot', 'owner_id', 'owner_username', 'status']
+        read_only_fields = ['date_time_created', 'date_time_modified', 'owner_id', 'owner_username', 'status', 'finalized_timeslot']
 
 class TimeSlotSerializer(serializers.ModelSerializer):
 
