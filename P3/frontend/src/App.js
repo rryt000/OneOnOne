@@ -8,7 +8,8 @@ import LoginPage from "./pages/login/Login";
 import RegisterPage from "./pages/register/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import AccountPage from "./pages/account/Account";
-
+import CalendarPage from "./pages/calendars/Calendars"; 
+ 
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/account" element={<AccountPage />} />
+            <Route path="/calendars" element={<CalendarPage />} />
           </Route>
         </Routes>
       </AuthProvider>

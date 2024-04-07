@@ -6,46 +6,31 @@ import { Link } from "react-router-dom";
 const CalendarPage = () => {
     const [primaryCalendars, setPrimaryCalendars] = useState([]);
     const [secondaryCalendars, setSecondaryCalendars] = useState([]);
-    const [newCalendarName, setNewCalendarName] = useState('');
-    const [newCalendarComment, setNewCalendarComment] = useState('');
 
-    // Fetch Primary Calendars
-    useEffect(() => {
-        axios.get('http://localhost:8000/calendars/primary/')
-            .then(response => {
-                setPrimaryCalendars(response.data);
-            })
-            .catch(error => {
-                console.error('Error fetching primary calendars', error);
-            });
-    }, []);
+  // Backend base URL (adjust as needed)
+  const backendUrl = 'http://localhost:8000';
 
-    // Fetch Secondary Calendars
-    useEffect(() => {
-        axios.get('http://localhost:8000/calendars/secondary/')
-            .then(response => {
-                setSecondaryCalendars(response.data);
-            })
-            .catch(error => {
-                console.error('Error fetching secondary calendars', error);
-            });
-    }, []);
+  useEffect(() => {
+    // Fetching Primary Calendars
+    axios.get(`${backendUrl}/calendars/primary`)
+      .then(response => {
+        setPrimaryCalendars(response.data);
+      })
+      .catch(error => console.error('Error fetching primary calendars:', error));
 
-    // Handle New Calendar Submission
-    const handleCreateCalendar = (e) => {
-        e.preventDefault();
-        axios.post('http://localhost:8000/calendars/', {
-            name: newCalendarName,
-            comment: newCalendarComment
-        }).then(response => {
-            // Add the new calendar to the primary list
-            setPrimaryCalendars([...primaryCalendars, response.data]);
-            setNewCalendarName('');
-            setNewCalendarComment('');
-        }).catch(error => {
-            console.error('Error creating calendar', error);
-        });
-    };
+    // Fetching Secondary Calendars
+    axios.get(`${backendUrl}/calendars/secondary`)
+      .then(response => {
+        setSecondaryCalendars(response.data);
+      })
+      .catch(error => console.error('Error fetching secondary calendars:', error));
+  }, []);
+
+  // Combine both Primary and Secondary Calendars and filter
+  const allCalendars = [...primaryCalendars, ...secondaryCalendars];
+  const finalizedCalendars = allCalendars.filter(calendar => calendar.status === 'Finalized');
+  const submittedCalendars = allCalendars.filter(calendar => calendar.status === 'Submitted');
+  const inProgressCalendars = allCalendars.filter(calendar => calendar.status === 'In progress');
 
     return (
         <>
@@ -63,47 +48,51 @@ const CalendarPage = () => {
             </ul>
           </div>
         </div>
-      </nav>s
+      </nav>
         
-        <div>
-            <h1>Your Calendars</h1>
-            
-            {/* Calendar Creation Form */}
-            <form onSubmit={handleCreateCalendar}>
-                <input 
-                    type="text"
-                    value={newCalendarName}
-                    onChange={(e) => setNewCalendarName(e.target.value)}
-                    placeholder="Calendar Name"
-                    required
-                />
-                <textarea 
-                    value={newCalendarComment}
-                    onChange={(e) => setNewCalendarComment(e.target.value)}
-                    placeholder="Calendar Comment"
-                />
-                <button type="submit">Create Calendar</button>
-            </form>
+      <main>
+        <div className="container-sm">
+          <h1 className="text-center my-4">Your Calendars.</h1>
+          <div className="row">
+            {/* Finalized Calendars */}
+            <div className="col-md-4">
+              <h2>Finalized Calendars</h2>
+              <div className="list-group">
+                {finalizedCalendars.map(calendar => (
+                  <a key={calendar.id} href={`calendar/${calendar.id}`} className="list-group-item list-group-item-action">
+                    {calendar.name}
+                  </a>
+                ))}
+              </div>
+            </div>
 
-            {/* Display Primary Calendars */}
-            <h2>Primary Calendars</h2>
-            {primaryCalendars.map(calendar => (
-                <div key={calendar.id}>
-                    <h3>{calendar.name}</h3>
-                    <p>{calendar.comment}</p>
-                    {/* Additional calendar details */}
-                </div>
-            ))}
+            {/* Submitted Calendars */}
+            <div className="col-md-4">
+              <h2>Submitted Calendars</h2>
+              <div className="list-group">
+                {submittedCalendars.map(calendar => (
+                  <a key={calendar.id} href={`calendar/${calendar.id}`} className="list-group-item list-group-item-action">
+                    {calendar.name}
+                  </a>
+                ))}
+              </div>
+            </div>
 
-            {/* Display Secondary Calendars */}
-            <h2>Secondary Calendars</h2>
-            {secondaryCalendars.map(calendar => (
-                <div key={calendar.id}>
-                    <h3>{calendar.name}</h3>
-                    {/* Secondary calendar details */}
-                </div>
-            ))}
+            {/* In Progress Calendars */}
+            <div className="col-md-4">
+              <h2>In Progress Calendars</h2>
+              <div className="list-group">
+                {inProgressCalendars.map(calendar => (
+                  <a key={calendar.id} href={`calendar/${calendar.id}`} className="list-group-item list-group-item-action">
+                    {calendar.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
+      </main>
+
         <footer className="footer text-center py-3">
         <p>&copy; 2024 1on1 Meetings. All rights reserved.</p>
       </footer>
