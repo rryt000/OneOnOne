@@ -9,7 +9,7 @@ import RegisterPage from "./pages/register/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import AccountPage from "./pages/accounts/Accounts";
 import CalendarPage from "./pages/calendars/Calendars"; 
- 
+import ContactsPage from "./pages/contacts/Contacts"; 
 
 function App() {
   return (
@@ -22,6 +22,7 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/accounts" element={<AccountPage />} />
+            <Route path="/contacts" element={<ContactsPage />} />
             <Route path="/calendars" element={<CalendarPage />} />
           </Route>
         </Routes>

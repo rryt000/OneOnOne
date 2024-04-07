@@ -20,7 +20,7 @@ class ContactList(models.Model):
         """
         Remove a contact
         """
-        if account not in self.contacts.all():
+        if account in self.contacts.all():
             self.contacts.remove(account)
 
     def unadd(self, removee):

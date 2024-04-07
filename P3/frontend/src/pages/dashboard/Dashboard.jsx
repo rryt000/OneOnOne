@@ -13,8 +13,8 @@ const Dashboard = () => {
           <a className="navbar-brand" href="/dashboard">1on1</a>
           <div className="collapse navbar-collapse" id="navbarNav">
             <ul className="navbar-nav me-auto mb-lg-0">
-              <li className="nav-item"><a className="nav-link current" href="Dashboard.html">Dashboard</a></li>
-              <li className="nav-item"><a className="nav-link" href="Contacts.html">Contacts</a></li>
+              <li className="nav-item"><a className="nav-link current" href="/dashboard">Dashboard</a></li>
+              <li className="nav-item"><a className="nav-link" href="/contacts">Contacts</a></li>
               <li className="nav-item"><a className="nav-link" href="Calendar.html">Calendars</a></li>
             </ul>
             <ul className="navbar-nav ms-auto">
