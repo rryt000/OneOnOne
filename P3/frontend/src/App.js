@@ -22,6 +22,7 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/accounts" element={<AccountPage />} />
+            <Route path="/calendars" element={<CalendarPage />} />
           </Route>
         </Routes>
       </AuthProvider>
