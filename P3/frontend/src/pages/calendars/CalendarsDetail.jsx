@@ -3,27 +3,25 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const CalendarDetailPage = () => {
-    const { calendarId } = useParams(); // This gets the calendar ID from the URL
-    const [calendar, setCalendar] = useState(null); // State to store calendar details
-    const [isLoading, setIsLoading] = useState(true); // State to handle loading status
-    const [error, setError] = useState(null); // State to handle any errors
+    const { calendarId } = useParams(); 
+    const [calendar, setCalendar] = useState(null); 
+    const [isLoading, setIsLoading] = useState(true); 
+    const [error, setError] = useState(null); 
 
     useEffect(() => {
-        // Function to fetch calendar details from the backend
         const fetchCalendarDetails = async () => {
             try {
-                // Replace with your actual API endpoint
                 const response = await axios.get(`http://localhost:8000/calendars/${calendarId}`);
-                setCalendar(response.data); // Set calendar details in state
+                setCalendar(response.data); 
             } catch (err) {
-                setError(err.message); // Handle errors
+                setError(err.message);
             } finally {
-                setIsLoading(false); // Set loading to false once data is fetched
+                setIsLoading(false); 
             }
         };
 
-        fetchCalendarDetails(); // Call the function to fetch data
-    }, [calendarId]); // Effect dependency array
+        fetchCalendarDetails(); 
+    }, [calendarId]); 
 
     if (isLoading) {
         return <div>Loading...</div>; // Show loading message
