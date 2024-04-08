@@ -3,7 +3,6 @@ import axios from 'axios';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 import './Calendars.css';
-//This shits a mess rn. Will continue working on it...
 
 const CalendarPage = () => {
   const auth = useAuth();
@@ -28,18 +27,15 @@ const CalendarPage = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            // Assuming the response includes the newly created calendar
             const newCalendar = response.data;
             setPrimaryCalendars([...primaryCalendars, newCalendar]);
-            setNewCalendarName('');  // Reset form field
+            setNewCalendarName('');  
         } catch (error) {
             console.error('Error creating calendar:', error);
-            // Handle errors (e.g., display an error message)
         }
     };
 
     useEffect(() => {
-        // Headers with the Authorization token
         const config = {
             headers: { Authorization: `Bearer ${token}` }
         };
@@ -59,13 +55,13 @@ const CalendarPage = () => {
             .catch(error => console.error('Error fetching secondary calendars:', error));
     }, [token]);
 
-    
+  const finalizedCalendars = primaryCalendars.filter(calendar => calendar.status === 'finalized');
+  const submittedCalendars = primaryCalendars.filter(calendar => calendar.status === 'submitted');
+  const inProgressCalendars = primaryCalendars.filter(calendar => calendar.status === 'created');
 
-  // Combine both Primary and Secondary Calendars and filter
-  const allCalendars = [...primaryCalendars, ...secondaryCalendars];
-  const finalizedCalendars = allCalendars.filter(calendar => calendar.status === 'finalized');
-  const submittedCalendars = allCalendars.filter(calendar => calendar.status === 'submitted');
-  const inProgressCalendars = allCalendars.filter(calendar => calendar.status === 'created');
+  const contactFinalizedCalendars = secondaryCalendars.filter(calendar => calendar.calendar_status === 'finalized');
+  const contactSubmittedCalendars = secondaryCalendars.filter(calendar => calendar.calendar_status === 'submitted');
+  const contactInProgressCalendars = secondaryCalendars.filter(calendar => calendar.calendar_status === 'not_submitted');
 
   return (
     <>
@@ -117,9 +113,9 @@ const CalendarPage = () => {
               <h2>Finalized Calendars</h2>
               <div className="list-group">
                 {finalizedCalendars.map(calendar => (
-                  <a key={calendar.id} href={`calendars/${calendar.id}`} className="list-group-item list-group-item-action">
-                    {calendar.name}
-                  </a>
+                  <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
+                  {calendar.name}
+                </Link>
                 ))}
               </div>
             </div>
@@ -129,9 +125,9 @@ const CalendarPage = () => {
               <h2>Submitted Calendars</h2>
               <div className="list-group">
                 {submittedCalendars.map(calendar => (
-                  <a key={calendar.id} href={`calendars/${calendar.id}`} className="list-group-item list-group-item-action">
-                    {calendar.name}
-                  </a>
+                  <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
+                  {calendar.name}
+                </Link>
                 ))}
               </div>
             </div>
@@ -141,9 +137,51 @@ const CalendarPage = () => {
               <h2>In Progress Calendars</h2>
               <div className="list-group">
                 {inProgressCalendars.map(calendar => (
-                  <a key={calendar.id} href={`calendars/${calendar.id}`} className="list-group-item list-group-item-action">
-                    {calendar.name}
-                  </a>
+                  <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
+                  {calendar.name}
+                </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="container-sm">
+    <h1 className="text-center my-4">Secondary Calendars</h1>
+     
+          <div className="row">
+            {/* Finalized Calendars */}
+            <div className="col-md-4">
+              <h2>Finalized Calendars</h2>
+              <div className="list-group">
+                {contactFinalizedCalendars.map(calendar => (
+                  <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
+                  {calendar.name}
+                </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Submitted Calendars */}
+            <div className="col-md-4">
+              <h2>Submitted Calendars</h2>
+              <div className="list-group">
+                {contactSubmittedCalendars.map(calendar => (
+                  <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
+                  {calendar.name}
+                </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* In Progress Calendars */}
+            <div className="col-md-4">
+              <h2>In Progress Calendars</h2>
+              <div className="list-group">
+                {contactInProgressCalendars.map(calendar => (
+                  <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
+                  {calendar.name}
+                </Link>
                 ))}
               </div>
             </div>
