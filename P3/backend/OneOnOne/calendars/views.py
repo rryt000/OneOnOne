@@ -264,8 +264,14 @@ class CalendarContactList(APIView):
                 CalendarContact.objects.filter(calendar=calendar, contact_id=contact_id).update(has_submitted=True)
             else:
                 CalendarContact.objects.filter(calendar=calendar, contact_id=contact_id).update(has_submitted=False)
+        
+        calendar_contacts = self.get_object(calendar_id, request.user)
+        serializer_data = CalendarContactSerializer(calendar_contacts, many=True).data
+        for datapoint in serializer_data:
+            contact = get_object_or_404(get_user_model(), id=datapoint.get('contact'))
+            datapoint['contact_email'] = contact.email
 
-        return Response(serializer.data)
+        return Response(serializer_data)
     
 
 class CalendarContactDetail(APIView):
