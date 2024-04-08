@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import { useAuth } from "../../hooks/AuthProvider";
 
@@ -6,28 +7,40 @@ const Dashboard = () => {
 
   const auth = useAuth();
 
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+
+  const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+
   return (
     <>
-      <nav className="navbar navbar-expand-lg">
+   
+    <nav className="navbar navbar-expand-lg">
         <div className="container">
-          <a className="navbar-brand" href="/dashboard">1on1</a>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav me-auto mb-lg-0">
-              <li className="nav-item"><a className="nav-link current" href="/dashboard">Dashboard</a></li>
-              <li className="nav-item"><a className="nav-link" href="/contacts">Contacts</a></li>
-              <li className="nav-item"><a className="nav-link" href="Calendar.html">Calendars</a></li>
-            </ul>
-            <ul className="navbar-nav ms-auto">
-              <li className="nav-item"><a className="nav-link" href="/accounts">Account</a></li>
-              <li className="nav-item"><a className="nav-link" href="#!" onClick={(e) => {
-                e.preventDefault();
-                auth.logOut();
-              }}>Logout</a>
-              </li>
-            </ul>
-          </div>
+            <span className="navbar-brand" to="/dashboard/">1on1</span>
+            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
+                    aria-label="Toggle navigation" onClick={handleNavCollapse}>
+                <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse`} id="navbarNav">
+                <ul className="navbar-nav me-auto mb-lg-0">
+                    <li className="nav-item"><Link className="nav-link current" to="/dashboard/">Dashboard</Link></li>
+                    <li className="nav-item"><Link className="nav-link" to="/contacts/">Contacts</Link></li>
+                    <li className="nav-item"><Link className="nav-link" to="/calendars/">Calendars</Link></li>
+                </ul>
+                <ul className="navbar-nav ms-auto">
+                    <li className="nav-item"><Link className="nav-link" to="/accounts/">Account</Link></li>
+                    <li className="nav-item">
+                        <a className="nav-link" href="#!" onClick={(e) => {
+                            e.preventDefault();
+                            auth.logOut();
+                        }}>Logout</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-      </nav>
+    </nav>
+ 
 
       <main>
         <div className="container-sm">
@@ -49,7 +62,7 @@ const Dashboard = () => {
             </div>
             <div className="d-flex flex-column align-items-center col-6">
               <h2>Start a new calendar.</h2>
-              <a href="new_calendar.html" className="btn btn-primary btn-lg">New Calendar</a>
+              <a href="calendars" className="btn btn-primary btn-lg">New Calendar</a>
             </div>
           </div>
         </div>
