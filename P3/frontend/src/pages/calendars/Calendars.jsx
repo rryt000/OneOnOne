@@ -1,36 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/AuthProvider";
+import './Calendars.css';
 //This shits a mess rn. Will continue working on it...
 
 const CalendarPage = () => {
+    const auth = useAuth();
+    const { token } = useAuth();
     const [primaryCalendars, setPrimaryCalendars] = useState([]);
     const [secondaryCalendars, setSecondaryCalendars] = useState([]);
 
-  // Backend base URL (adjust as needed)
-  const backendUrl = 'http://localhost:8000';
+    // Backend base URL (adjust as needed)
+    const backendUrl = 'http://localhost:8000';
+    const [newCalendarName, setNewCalendarName] = useState('');
 
-  useEffect(() => {
-    // Fetching Primary Calendars
-    axios.get(`${backendUrl}/calendars/primary`)
-      .then(response => {
-        setPrimaryCalendars(response.data);
-      })
-      .catch(error => console.error('Error fetching primary calendars:', error));
+    // ... (existing useEffect for fetching calendars)
 
-    // Fetching Secondary Calendars
-    axios.get(`${backendUrl}/calendars/secondary`)
-      .then(response => {
-        setSecondaryCalendars(response.data);
-      })
-      .catch(error => console.error('Error fetching secondary calendars:', error));
-  }, []);
+    const handleAddCalendar = async (event) => {
+        event.preventDefault();
+        const calendarData = { name: newCalendarName };
+        try {
+            const response = await axios.post(`${backendUrl}/calendars/primary/`, calendarData, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            // Assuming the response includes the newly created calendar
+            const newCalendar = response.data;
+            setPrimaryCalendars([...primaryCalendars, newCalendar]);
+            setNewCalendarName('');  // Reset form field
+        } catch (error) {
+            console.error('Error creating calendar:', error);
+            // Handle errors (e.g., display an error message)
+        }
+    };
+
+    useEffect(() => {
+        // Headers with the Authorization token
+        const config = {
+            headers: { Authorization: `Bearer ${token}` }
+        };
+
+        // Fetching Primary Calendars
+        axios.get(`${backendUrl}/calendars/primary`, config)
+            .then(response => {
+                setPrimaryCalendars(response.data);
+            })
+            .catch(error => console.error('Error fetching primary calendars:', error));
+
+        // Fetching Secondary Calendars
+        axios.get(`${backendUrl}/calendars/secondary`, config)
+            .then(response => {
+                setSecondaryCalendars(response.data);
+            })
+            .catch(error => console.error('Error fetching secondary calendars:', error));
+    }, [token]);
+
+    
 
   // Combine both Primary and Secondary Calendars and filter
   const allCalendars = [...primaryCalendars, ...secondaryCalendars];
-  const finalizedCalendars = allCalendars.filter(calendar => calendar.status === 'Finalized');
-  const submittedCalendars = allCalendars.filter(calendar => calendar.status === 'Submitted');
-  const inProgressCalendars = allCalendars.filter(calendar => calendar.status === 'In progress');
+  const finalizedCalendars = allCalendars.filter(calendar => calendar.status === 'finalized');
+  const submittedCalendars = allCalendars.filter(calendar => calendar.status === 'submitted');
+  const inProgressCalendars = allCalendars.filter(calendar => calendar.status === 'created');
 
     return (
         <>
@@ -45,21 +77,38 @@ const CalendarPage = () => {
             </ul>
             <ul className="navbar-nav ms-auto">
               <li className="nav-item"><Link className="nav-link" to="/account">Account</Link></li>
+              <li className="nav-item"><a className="nav-link" href="#!" onClick={(e) => {
+                e.preventDefault();
+                auth.logOut();
+              }}>Logout</a>
+              </li>
             </ul>
           </div>
         </div>
       </nav>
         
       <main>
-        <div className="container-sm">
-          <h1 className="text-center my-4">Your Calendars.</h1>
+      <div className="container-sm">
+    <h1 className="text-center my-4">Primary Calendars</h1>
+    <div className="add-calendar-form">
+        <form onSubmit={handleAddCalendar} className="calendar-form">
+            <input 
+                type="text" 
+                value={newCalendarName} 
+                onChange={(e) => setNewCalendarName(e.target.value)} 
+                placeholder="Enter a Calendar Name" 
+                required 
+            />
+            <button type="submit" className="btn btn-primary">Create</button>
+        </form>
+    </div>
           <div className="row">
             {/* Finalized Calendars */}
             <div className="col-md-4">
               <h2>Finalized Calendars</h2>
               <div className="list-group">
                 {finalizedCalendars.map(calendar => (
-                  <a key={calendar.id} href={`calendar/${calendar.id}`} className="list-group-item list-group-item-action">
+                  <a key={calendar.id} href={`calendars/${calendar.id}`} className="list-group-item list-group-item-action">
                     {calendar.name}
                   </a>
                 ))}
@@ -71,7 +120,7 @@ const CalendarPage = () => {
               <h2>Submitted Calendars</h2>
               <div className="list-group">
                 {submittedCalendars.map(calendar => (
-                  <a key={calendar.id} href={`calendar/${calendar.id}`} className="list-group-item list-group-item-action">
+                  <a key={calendar.id} href={`calendars/${calendar.id}`} className="list-group-item list-group-item-action">
                     {calendar.name}
                   </a>
                 ))}
@@ -83,7 +132,7 @@ const CalendarPage = () => {
               <h2>In Progress Calendars</h2>
               <div className="list-group">
                 {inProgressCalendars.map(calendar => (
-                  <a key={calendar.id} href={`calendar/${calendar.id}`} className="list-group-item list-group-item-action">
+                  <a key={calendar.id} href={`calendars/${calendar.id}`} className="list-group-item list-group-item-action">
                     {calendar.name}
                   </a>
                 ))}
@@ -91,6 +140,7 @@ const CalendarPage = () => {
             </div>
           </div>
         </div>
+
       </main>
 
         <footer className="footer text-center py-3">

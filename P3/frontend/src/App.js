@@ -9,6 +9,7 @@ import RegisterPage from "./pages/register/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 import AccountPage from "./pages/accounts/Accounts";
 import CalendarPage from "./pages/calendars/Calendars"; 
+import CalendarDetailPage from "./pages/calendars/CalendarsDetail";
  
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/accounts" element={<AccountPage />} />
             <Route path="/calendars" element={<CalendarPage />} />
+            <Route path="/calendars/:calendarId" element={<CalendarDetailPage />} />
           </Route>
         </Routes>
       </AuthProvider>
