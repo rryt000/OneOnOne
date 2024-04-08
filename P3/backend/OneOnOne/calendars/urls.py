@@ -16,4 +16,5 @@ urlpatterns = [
     path('<int:calendar_id>/timeslot-votes/', CalendarTimeSlotVotesView.as_view(), name='calendar_timeslot_votes'),
     path('<int:calendar_id>/finalization/', CalendarFinalize.as_view(), name="calendar_finalization"),
     path('<int:calendar_id>/suggestions/', CalendarSuggest.as_view(), name='calendar_suggestions'),
+    # path('<int:calendar_id>/submissions/<int:contact_id>', CalendarSubmission.as_view(), name='calendar_submissions'),
 ]

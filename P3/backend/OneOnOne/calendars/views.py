@@ -35,7 +35,7 @@ class CalendarListPrimary(APIView):
     def post(self, request, **kwargs):
         serializer = CalendarSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(owner=request.user, status='created')
+            serializer.save(owner=request.user, status='submitted')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -56,9 +56,55 @@ class CalendarListSecondary(APIView):
             if calendar.status != 'finalized':
                 calendar.update_submission_status()
 
+        serializer_data = serializer.data
+        for datapoint in serializer_data:
+            calendar_id  = datapoint.get('id')
+            calendar = get_object_or_404(Calendar, id=calendar_id)
+            calendar_contact = CalendarContact.objects.get(calendar_id=calendar_id, contact=request.user)
+            total_timeslots = TimeSlot.objects.filter(calendar=calendar).count()
+            voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact=request.user).count()
+            if total_timeslots == voted_timeslots:
+                CalendarContact.objects.filter(calendar=calendar, contact=request.user).update(has_submitted=True)
+                has_submitted = True
+            else:
+                CalendarContact.objects.filter(calendar=calendar, contact=request.user).update(has_submitted=False)
+            if calendar.status == 'finalized':
+                datapoint['contact_status'] = 'finalized'
+            elif has_submitted:
+                datapoint['contact_status'] = 'submitted'
+            else:
+                datapoint['contact_status'] = 'not_submitted'
+        
+        calendar_ids = CalendarContact.objects.filter(contact=request.user).values_list('calendar', flat=True)
+        calendars_from_contacts = Calendar.objects.filter(id__in=calendar_ids)
+        serializer = CalendarSerializer(calendars_from_contacts, many=True)
+
+        for calendar_id in calendar_ids:
+            calendar = get_object_or_404(Calendar, id=calendar_id)
+            if calendar.status != 'finalized':
+                calendar.update_submission_status()
+
+        serializer_data = serializer.data
+        for datapoint in serializer_data:
+            calendar_id  = datapoint.get('id')
+            calendar = get_object_or_404(Calendar, id=calendar_id)
+            calendar_contact = CalendarContact.objects.get(calendar_id=calendar_id, contact=request.user)
+            total_timeslots = TimeSlot.objects.filter(calendar=calendar).count()
+            voted_timeslots = TimeSlotVote.objects.filter(calendar=calendar, contact=request.user).count()
+            if total_timeslots == voted_timeslots:
+                CalendarContact.objects.filter(calendar=calendar, contact=request.user).update(has_submitted=True)
+                has_submitted = True
+            else:
+                CalendarContact.objects.filter(calendar=calendar, contact=request.user).update(has_submitted=False)
+            if calendar.status == 'finalized':
+                datapoint['contact_status'] = 'finalized'
+            elif has_submitted:
+                datapoint['contact_status'] = 'submitted'
+            else:
+                datapoint['contact_status'] = 'not_submitted'
+
         return Response(serializer.data)
-
-
+    
 
 class CalendarDetail(APIView):
     """
@@ -514,4 +560,3 @@ class CalendarSuggest(APIView):
         
         # If no valid timeslots are found
         return Response({"message": "No possible timeslots based on the criteria."})
-    
