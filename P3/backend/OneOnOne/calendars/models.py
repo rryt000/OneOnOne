@@ -14,7 +14,7 @@ class Calendar(models.Model):
         ('created', 'In Progress'),
         ('submitted', 'Submitted'),
         ('finalized', 'Finalized'),
-    ), default='created')
+    ), default='submitted')
 
     def __str__(self):
         return f"{self.id} {self.name}"

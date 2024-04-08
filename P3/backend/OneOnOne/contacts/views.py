@@ -29,6 +29,9 @@ class ContactListAPIView(APIView):
         if user.is_anonymous or not get_user_model().objects.filter(pk=user.pk).exists():
             return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         contact_list = ContactList.objects.get(user=user)
+        
+        print(contact_list.contacts.all())
+
         contact_email = request.data.get('email')
         if contact_email:
             if  get_user_model().objects.filter(email=contact_email).exists():
@@ -36,7 +39,10 @@ class ContactListAPIView(APIView):
             else:
                 return Response({'error': 'User does not exist'}, status=status.HTTP_404_NOT_FOUND)
             if removee in contact_list.contacts.all():
+                print(removee)
                 contact_list.unadd(removee)
+                print(contact_list.contacts)
+                contact_list.save()
                 return Response({'message': 'Sucessfully removed user from contact list'}, status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response({'error': 'User not in contact list.'}, status=status.HTTP_404_NOT_FOUND)
@@ -76,6 +82,7 @@ class ContactRequestAPIView(APIView):
         except get_user_model().DoesNotExist:
             raise ValidationError("Receiver user does not exist.")
         
+
         if ContactRequest.objects.filter(sender=sender, receiver=receiver).exists():
             raise ValidationError("You have already sent a friend request to this user.")
         
