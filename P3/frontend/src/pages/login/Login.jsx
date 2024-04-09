@@ -19,24 +19,16 @@ const LoginPage = () => {
       }
     }, [auth, navigate]);
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
       event.preventDefault();
       if (input.username !== "" && input.password !== "") {
-        try {
-          await auth.loginAction(input);
-          // Assuming the loginAction would throw an error if login is unsuccessful
-          navigate('/dashboard');
-          // Log the user state after successful login and navigation
-          console.log('Logged in user:', auth.user);
-        } catch (error) {
-          // Handle login error (e.g., invalid credentials, network error, etc.)
-          console.error('Login error:', error);
-        }
-      } else {
-        alert("Please provide a valid input.");
+        auth.loginAction(input);
+        console.log(auth.user)
+        navigate('/dashboard');
+        return;
       }
+      alert("Please provide a valid input.");
     };
-    
   
     const handleInput = (e) => {
       const { name, value } = e.target;
