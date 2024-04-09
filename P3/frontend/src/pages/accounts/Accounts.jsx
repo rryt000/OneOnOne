@@ -5,75 +5,72 @@ import './Accounts.css'; // Adjust the path to your CSS file as necessary
 import { useAuth } from '../../hooks/AuthProvider';
 import axios from 'axios';
 
-
 const AccountPage = () => {
-
   const auth = useAuth();
+  const [formData, setFormData] = useState({});
+  const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState({ type: '', content: '' }); // New state for messages
 
-    const [formData, setFormData] = useState({
-    });
-    const [errors, setErrors] = useState({});
-
-    const handleChange = (event) => {
-      const { id, value } = event.target;
-      
-      if (value) {
-          setFormData({ ...formData, [id]: value });
-      } else {
-          const {[id]: omitted, ...rest} = formData;
-          setFormData(rest);
-      }
+  const handleChange = (event) => {
+    const { id, value } = event.target;
+    if (value) {
+        setFormData({ ...formData, [id]: value });
+    } else {
+        const {[id]: omitted, ...rest} = formData;
+        setFormData(rest);
+    }
   };
-  const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
 
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
-  
 
-    const validateForm = () => {
-        let isValid = true;
-        let errors = {};
+  const validateForm = () => {
+    let isValid = true;
+    let errors = {};
 
-        if (formData.username && !/^[a-zA-Z0-9_.]{3,20}$/.test(formData.username)) {
-            isValid = false;
-            errors.username = "Invalid username. Use 3-20 characters with letters, numbers, dots, or underscores.";
-        }
+    if (formData.username && !/^[a-zA-Z0-9_.]{3,20}$/.test(formData.username)) {
+      isValid = false;
+      errors.username = "Invalid username. Use 3-20 characters with letters, numbers, dots, or underscores.";
+    }
 
-        if (formData.email &&!/\S+@\S+\.\S+/.test(formData.email)) {
-            isValid = false;
-            errors.email = "Invalid email format.";
-        }
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      isValid = false;
+      errors.email = "Invalid email format.";
+    }
 
-        if (formData.password && formData.password.length < 8) {
-            isValid = false;
-            errors.password = "Password must be at least 8 characters long.";
-        }
+    if (formData.password && formData.password.length < 8) {
+      isValid = false;
+      errors.password = "Password must be at least 8 characters long.";
+    }
 
-        setErrors(errors);
-        return isValid;
-    };
+    setErrors(errors);
+    return isValid;
+  };
 
-    const handleSubmit = async (event) => {
-      event.preventDefault();
-      if (validateForm()) {
-          try {
-              const token = auth.token;
-              console.log(formData)
-              const response = await axios.put('http://127.0.0.1:8000/accounts/', formData, {
-                  headers: {
-                      'Authorization': `Bearer ${token}`
-                  }
-              });
-
-              console.log("Success:", response.data);
-              // Handle success response
-          } catch (error) {
-              console.error("Error during the API call:", error.response.data);
-              // Handle error response
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (validateForm()) {
+      try {
+        const token = auth.token;
+        const response = await axios.put('http://127.0.0.1:8000/accounts/', formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
-      } else {
-          console.log("Form contains errors.", errors);
-          // Handle form errors
+        });
+
+        console.log("Success:", response.data);
+        // Set success message
+        setMessage({ type: 'success', content: 'Account successfully updated.' });
+      } catch (error) {
+        console.error("Error during the API call:", error.response.data);
+        // Set error message
+        setMessage({ type: 'error', content: 'An error occurred. Please try again.' });
       }
+    } else {
+      console.log("Form contains errors.", errors);
+      // Optionally set a message for form validation errors
+      setMessage({ type: 'error', content: 'Please correct the errors in the form.' });
+    }
   };
 
     return (
@@ -147,6 +144,11 @@ const AccountPage = () => {
                         <button type="submit" className="btn btn-primary col-12">Save Changes</button>
                       </div>
                     </form>
+                    {message.content && (
+                    <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-danger'}`} role="alert">
+                      {message.content}
+                    </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -29,9 +29,6 @@ class ContactListAPIView(APIView):
         if user.is_anonymous or not get_user_model().objects.filter(pk=user.pk).exists():
             return Response({'error': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
         contact_list = ContactList.objects.get(user=user)
-        
-        print(contact_list.contacts.all())
-
         contact_email = request.data.get('email')
         if contact_email:
             if  get_user_model().objects.filter(email=contact_email).exists():
