@@ -13,6 +13,8 @@ const CalendarPage = () => {
 
   const backendUrl = 'http://localhost:8000';
   const [newCalendarName, setNewCalendarName] = useState('');
+  const [newCalendarComment, setNewCalendarComment] = useState('');
+
 
   // Function to toggle navbar collapse state
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
@@ -21,7 +23,10 @@ const CalendarPage = () => {
 
     const handleAddCalendar = async (event) => {
         event.preventDefault();
-        const calendarData = { name: newCalendarName };
+        const calendarData = {
+            name: newCalendarName,
+            comment: newCalendarComment
+        };
         try {
             const response = await axios.post(`${backendUrl}/calendars/primary/`, calendarData, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -96,16 +101,24 @@ const CalendarPage = () => {
   <div className="container-sm">
     <h1 className="text-center my-4">Primary Calendars</h1>
     <div className="add-calendar-form">
-        <form onSubmit={handleAddCalendar} className="calendar-form">
-            <input 
-                type="text" 
-                value={newCalendarName} 
-                onChange={(e) => setNewCalendarName(e.target.value)} 
-                placeholder="Enter a Calendar Name" 
-                required 
-            />
-            <button type="submit" className="btn btn-primary">Create</button>
-        </form>
+    <form onSubmit={handleAddCalendar} className="calendar-form">
+    <input 
+      className="calendar-input"
+      type="text" 
+      value={newCalendarName} 
+      onChange={(e) => setNewCalendarName(e.target.value)} 
+      placeholder="Enter a Calendar Name" 
+      required 
+    />
+    <input 
+      className="calendar-input"
+      type="text" 
+      value={newCalendarComment} 
+      onChange={(e) => setNewCalendarComment(e.target.value)} 
+      placeholder="Enter a Calendar Comment (Optional)" 
+    />
+    <button type="submit" className="btn btn-primary">Create</button>
+    </form>
     </div>
           <div className="row">
             {/* Finalized Calendars */}

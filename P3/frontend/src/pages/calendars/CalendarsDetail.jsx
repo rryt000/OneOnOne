@@ -1,42 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { useAuth } from "../../hooks/AuthProvider";
+import OwnerView from './OwnerView'; // Update the path as necessary
+import ContactView from './ContactView'; // Update the path as necessary
 
 const CalendarDetailPage = () => {
-    const { calendarId } = useParams(); 
-    const [calendar, setCalendar] = useState(null); 
-    const [isLoading, setIsLoading] = useState(true); 
-    const [error, setError] = useState(null); 
+    const { token, user } = useAuth(); // Get user from useAuth directly
+    const { calendarId } = useParams();
+    const backendUrl = 'http://localhost:8000';
+
+    const [calendar, setCalendar] = useState(null);
+    const [isOwner, setIsOwner] = useState(false);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchCalendarDetails = async () => {
+        const fetchCalendar = async () => {
+            if (!token || !calendarId) {
+                console.error('Token or calendarId is not available');
+                setError('Token or calendarId is not available');
+                return;
+            }
+            const config = { headers: { Authorization: `Bearer ${token}` } };
             try {
-                const response = await axios.get(`http://localhost:8000/calendars/${calendarId}`);
-                setCalendar(response.data); 
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false); 
+                const response = await axios.get(`${backendUrl}/calendars/${calendarId}`, config);
+                setCalendar(response.data);
+                console.log('Owner ID:', response.data.owner_id, typeof response.data.owner_id);
+                console.log('User ID:', user.id, typeof user.id);
+
+                setIsOwner(response.data.owner_id === user.id); // Use user.id directly
+            } catch (error) {
+                console.error('Error fetching calendar:', error);
+                setError('Failed to load calendar data.');
             }
         };
 
-        fetchCalendarDetails(); 
-    }, [calendarId]); 
-
-    if (isLoading) {
-        return <div>Loading...</div>; // Show loading message
-    }
+        if (token && user) { // Ensure token and user are available before making the request
+            fetchCalendar();
+        }
+    }, [calendarId, token, user]);
 
     if (error) {
-        return <div>Error: {error}</div>; // Show error message
+        return <p>Error: {error}</p>;
     }
 
     return (
         <div>
-            <h1>Calendar: {calendar ? calendar.name : 'Not found'}</h1>
-            {/* Display calendar details here */}
-            <p>{calendar ? calendar.comment : 'No details available'}</p>
-            {/* Add more details as required */}
+            <h1>{calendar ? calendar.name : 'Loading...'}</h1>
+            {isOwner ? <OwnerView calendar={calendar} token={token} /> : <ContactView calendar={calendar} />}
         </div>
     );
 };

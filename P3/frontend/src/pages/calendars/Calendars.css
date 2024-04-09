@@ -111,21 +111,7 @@ footer {
     color: rgb(173, 173, 173);        
     text-decoration: none; 
 }
-.add-calendar-form {
-    text-align: center; /* Center align the form */
-    margin-top: 20px; /* Space above the form */
-}
 
-.calendar-form {
-    display: inline-block; /* Align form elements in a line */
-    margin-right: 10px; /* Space between input and button */
-}
-
-.calendar-form input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
 
 /* Make the navbar stand out */
 .navbar {
@@ -136,3 +122,33 @@ footer {
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
+  
+  .calendar-form input,
+  .calendar-form button {
+    width: 100%; 
+    padding: 8px;
+    margin-bottom: 10px; 
+  }
+  
+  .calendar-form button {
+    background-color: var(--action);
+    color: var(--secondary);
+    border: none;
+    cursor: pointer;
+  }
+  
+  .add-calendar-form {
+    width: 100%; 
+    display: flex;
+    justify-content: center; 
+  }
+  
+  .calendar-form {
+    width: 32%; 
+    margin: auto; 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    gap: 10px;
+  }
+  
