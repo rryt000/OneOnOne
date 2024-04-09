@@ -6,13 +6,14 @@ import OwnerView from './OwnerView'; // Update the path as necessary
 import ContactView from './ContactView'; // Update the path as necessary
 
 const CalendarDetailPage = () => {
-    const { token, user } = useAuth(); // Get user from useAuth directly
+    const { token, user } = useAuth();
     const { calendarId } = useParams();
     const backendUrl = 'http://localhost:8000';
 
     const [calendar, setCalendar] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
-    const [error, setError] = useState(null);
+    const [isContact, setIsContact] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchCalendar = async () => {
@@ -23,19 +24,27 @@ const CalendarDetailPage = () => {
             }
             const config = { headers: { Authorization: `Bearer ${token}` } };
             try {
-                const response = await axios.get(`${backendUrl}/calendars/${calendarId}`, config);
+                const response = await axios.get(`${backendUrl}/calendars/${calendarId}/`, config);
                 setCalendar(response.data);
-                console.log('Owner ID:', response.data.owner_id, typeof response.data.owner_id);
-                console.log('User ID:', user.id, typeof user.id);
 
-                setIsOwner(response.data.owner_id === user.id); // Use user.id directly
+                setIsOwner(response.data.owner_id === user.id);
+                console.log("lol")
+                // Check if the user is a calendar participant
+                const contactsResponse = await axios.get(`${backendUrl}/calendars/${calendarId}/contacts/`, config);
+                console.log("lol2")
+                const isContact = contactsResponse.data.some(contact => contact.contact === user.id);
+                console.log(isContact)
+                setIsContact(isContact);
+                
             } catch (error) {
                 console.error('Error fetching calendar:', error);
-                setError('Failed to load calendar data.');
+                // setError('404\n\nThe page you are looking for does not exist or you do not have access to it.');
+                const newText = 'Error 404\nThe page you are looking for does not exist or you do not have access to it.'.split('\n').map(str => <p>{str}</p>);
+                setError(newText)
             }
         };
 
-        if (token && user) { // Ensure token and user are available before making the request
+        if (token && user) {
             fetchCalendar();
         }
     }, [calendarId, token, user]);
@@ -45,10 +54,19 @@ const CalendarDetailPage = () => {
     }
 
     return (
-        <div>
-            <h1>{calendar ? calendar.name : 'Loading...'}</h1>
-            {isOwner ? <OwnerView calendar={calendar} token={token} /> : <ContactView calendar={calendar} />}
-        </div>
+    <div>
+        <h1>{calendar ? calendar.name : 'Loading...'}</h1>
+        {isOwner ? (
+            <OwnerView calendar={calendar} token={token} />
+        ) : isContact ? (
+            <ContactView calendar={calendar} />
+        ) : (
+            <div>
+                <h2>404 Error</h2>
+                <p>The page you are looking for does not exist or you do not have access to it.</p>
+            </div>
+        )}
+    </div>
     );
 };
 

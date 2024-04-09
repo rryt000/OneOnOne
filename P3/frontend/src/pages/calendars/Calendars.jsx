@@ -46,14 +46,14 @@ const CalendarPage = () => {
         };
 
         // Fetching Primary Calendars
-        axios.get(`${backendUrl}/calendars/primary`, config)
+        axios.get(`${backendUrl}/calendars/primary/`, config)
             .then(response => {
                 setPrimaryCalendars(response.data);
             })
             .catch(error => console.error('Error fetching primary calendars:', error));
 
         // Fetching Secondary Calendars
-        axios.get(`${backendUrl}/calendars/secondary`, config)
+        axios.get(`${backendUrl}/calendars/secondary/`, config)
             .then(response => {
                 setSecondaryCalendars(response.data);
             })
@@ -64,9 +64,9 @@ const CalendarPage = () => {
   const submittedCalendars = primaryCalendars.filter(calendar => calendar.status === 'submitted');
   const inProgressCalendars = primaryCalendars.filter(calendar => calendar.status === 'created');
 
-  const contactFinalizedCalendars = secondaryCalendars.filter(calendar => calendar.calendar_status === 'finalized');
-  const contactSubmittedCalendars = secondaryCalendars.filter(calendar => calendar.calendar_status === 'submitted');
-  const contactInProgressCalendars = secondaryCalendars.filter(calendar => calendar.calendar_status === 'not_submitted');
+  const contactFinalizedCalendars = secondaryCalendars.filter(calendar => calendar.contact_status === 'finalized');
+  const contactSubmittedCalendars = secondaryCalendars.filter(calendar => calendar.contact_status === 'submitted');
+  const contactInProgressCalendars = secondaryCalendars.filter(calendar => calendar.contact_status === 'not_submitted');
 
   return (
     <>
