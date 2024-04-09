@@ -22,7 +22,9 @@ const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post("http://127.0.0.1:8000/accounts/login/", data);
       const { user, access: token } = response.data;
- 
+
+      console.log(user);
+
       if (user && token) {
         setUser(user);
         setToken(token);
@@ -32,7 +34,7 @@ const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("Login error:", err);
-      // Optionally, handle login errors (e.g., showing a notification)
+      throw new Error("Login failed");
     }
   };
  

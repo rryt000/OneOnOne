@@ -3,13 +3,14 @@ import { useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Login.css';
 import { useAuth } from "../../hooks/AuthProvider";
-
+ 
 const LoginPage = () => {
     const [input, setInput] = useState({
       username: "",
       password: "",
     });
-  
+    const [errorMessage, setErrorMessage] = useState("");
+ 
     const auth = useAuth();
     const navigate = useNavigate();
   
@@ -18,17 +19,22 @@ const LoginPage = () => {
         navigate('/dashboard');
       }
     }, [auth, navigate]);
-
-    const handleSubmit = (event) => {
+ 
+    const handleSubmit = async (event) => {
       event.preventDefault();
       if (input.username !== "" && input.password !== "") {
-        auth.loginAction(input);
-        console.log(auth.user)
-        navigate('/dashboard');
-        return;
+        try {
+          await auth.loginAction(input);
+          navigate('/dashboard');
+          return;
+        } catch (error) {
+          setErrorMessage("Invalid credentials. Please try again.");
+        }
+      } else {
+        alert("Please provide a valid input.");
       }
-      alert("Please provide a valid input.");
     };
+    
   
     const handleInput = (e) => {
       const { name, value } = e.target;
@@ -36,6 +42,7 @@ const LoginPage = () => {
         ...prev,
         [name]: value,
       }));
+      if (errorMessage) setErrorMessage('');
     };
   
     return (
@@ -43,6 +50,7 @@ const LoginPage = () => {
         <div className="card" style={{ minWidth: "300px" }}>
           <div className="card-body">
             <h3 className="card-title text-center text-secondary">Welcome Back!</h3>
+            {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="text-secondary mb-1" htmlFor="username">Username</label>
@@ -64,6 +72,6 @@ const LoginPage = () => {
         </div>
       </div>
     );
-  };
+};
   
-  export default LoginPage;
+export default LoginPage;
