@@ -9,7 +9,8 @@ const LoginPage = () => {
       username: "",
       password: "",
     });
-  
+    const [errorMessage, setErrorMessage] = useState("");
+
     const auth = useAuth();
     const navigate = useNavigate();
   
@@ -24,13 +25,10 @@ const LoginPage = () => {
       if (input.username !== "" && input.password !== "") {
         try {
           await auth.loginAction(input);
-          // Assuming the loginAction would throw an error if login is unsuccessful
           navigate('/dashboard');
-          // Log the user state after successful login and navigation
-          console.log('Logged in user:', auth.user);
+          return;
         } catch (error) {
-          // Handle login error (e.g., invalid credentials, network error, etc.)
-          console.error('Login error:', error);
+          setErrorMessage("Invalid credentials. Please try again.");
         }
       } else {
         alert("Please provide a valid input.");
@@ -44,6 +42,7 @@ const LoginPage = () => {
         ...prev,
         [name]: value,
       }));
+      if (errorMessage) setErrorMessage('');
     };
   
     return (
@@ -51,6 +50,7 @@ const LoginPage = () => {
         <div className="card" style={{ minWidth: "300px" }}>
           <div className="card-body">
             <h3 className="card-title text-center text-secondary">Welcome Back!</h3>
+            {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label className="text-secondary mb-1" htmlFor="username">Username</label>
@@ -72,6 +72,6 @@ const LoginPage = () => {
         </div>
       </div>
     );
-  };
+};
   
-  export default LoginPage;
+export default LoginPage;

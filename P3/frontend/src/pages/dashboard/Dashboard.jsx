@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 import { useAuth } from "../../hooks/AuthProvider";
@@ -6,6 +6,8 @@ import { useAuth } from "../../hooks/AuthProvider";
 const Dashboard = () => {
 
   const auth = useAuth();
+
+  console.log(auth.user);
 
   const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
 

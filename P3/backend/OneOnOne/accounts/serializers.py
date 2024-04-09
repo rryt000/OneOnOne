@@ -43,9 +43,9 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Add additional user data to the response
         # Here, you can customize this to include any information you need
         data['user'] = {
+            'id': self.user.id,
             'username': self.user.username,
             'email': self.user.email,
-            # Include any other user fields you need
         }
         
         return data
