@@ -5,38 +5,87 @@ import { useAuth } from "../../hooks/AuthProvider"; // Adjust the path as necess
 import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterPage = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [first_name, setFirstName] = useState('');
-  const [last_name, setLastName] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    first_name: '',
+    last_name: '',
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   const { registerAction, user } = useAuth();
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (user) {
       navigate('/dashboard');
     }
   }, [user, navigate]);
 
+  const validate = (values) => {
+    const errors = {};
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    if (!values.username) {
+      errors.username = "Username is required!";
+    }
+    if (!values.email) {
+      errors.email = "Email is required!";
+    } else if (!regex.test(values.email)) {
+      errors.email = "This is not a valid email format!";
+    }
+    if (!values.password) {
+      errors.password = "Password is required!";
+    } else if (values.password.length < 6) {
+      errors.password = "Password must be at least 6 characters long.";
+    }
+    if (values.password !== values.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match!";
+    }
+    if (!values.first_name) {
+      errors.first_name = "First name is required!";
+    }
+    if (!values.last_name) {
+      errors.last_name = "Last name is required!";
+    }
+    return errors;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match.");
-      return;
+    const errors = validate(formData);
+    if (Object.keys(errors).length === 0) {
+      try {
+        await registerAction({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+        });
+      } catch (error) {
+        // Handle registration error (e.g., username taken or server error)
+        console.error("Registration error", error);
+      }
+    } else {
+      setFormErrors(errors);
     }
+  };
 
-    const formData = {
-      username,
-      email,
-      password,
-      first_name,
-      last_name,
-    };
-
-    await registerAction(formData);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+    // Optionally clear errors for this field
+    if (formErrors[name]) {
+      setFormErrors({
+        ...formErrors,
+        [name]: '',
+      });
+    }
   };
 
   return (
@@ -48,28 +97,34 @@ const RegisterPage = () => {
               <h3 className="card-title text-center">Welcome Aboard!</h3>
               <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label htmlFor="UsernameInput" className="form-label">Username</label>
-                  <input type="text" className="form-control" id="UsernameInput" placeholder="Jane Doe" required value={username} onChange={(e) => setUsername(e.target.value)} />
+                  <label htmlFor="username" className="form-label">Username</label>
+                  <input type="text" className="form-control" id="username" name="username" placeholder="Jane Doe" required value={formData.username} onChange={handleChange} />
+                  {formErrors.username && <p className="text-danger">{formErrors.username}</p>}
                 </div>
                 <div className="form-group mt-2">
                   <label htmlFor="emailInput" className="form-label">Email address</label>
-                  <input type="email" className="form-control" id="emailInput" placeholder="janedoe@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                  <input type="email" className="form-control" id="emailInput" name="email" placeholder="janedoe@example.com" required value={formData.email} onChange={handleChange} />
+                  {formErrors.email && <p className="text-danger">{formErrors.email}</p>}
                 </div>
                 <div className="form-group mt-2">
                   <label htmlFor="passwordInput" className="form-label">Password</label>
-                  <input type="password" className="form-control" id="passwordInput" placeholder="Enter Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <input type="password" className="form-control" id="passwordInput" name="password" placeholder="Enter Password" required value={formData.password} onChange={handleChange} />
+                  {formErrors.password && <p className="text-danger">{formErrors.password}</p>}
                 </div>
                 <div className="form-group mt-2">
                   <label htmlFor="confirmPasswordInput" className="form-label">Confirm Password</label>
-                  <input type="password" className="form-control" id="confirmPasswordInput" placeholder="Confirm Password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                  <input type="password" className="form-control" id="confirmPasswordInput" name="confirmPassword" placeholder="Confirm Password" required value={formData.confirmPassword} onChange={handleChange} />
+                  {formErrors.confirmPassword && <p className="text-danger">{formErrors.confirmPassword}</p>}
                 </div>
                 <div className="form-group mt-2">
                   <label htmlFor="firstNameInput" className="form-label">First Name</label>
-                  <input type="text" className="form-control" id="firstNameInput" required value={first_name} onChange={(e) => setFirstName(e.target.value)} />
+                  <input type="text" className="form-control" id="firstNameInput" name="first_name" required value={formData.first_name} onChange={handleChange} />
+                  {formErrors.first_name && <p className="text-danger">{formErrors.first_name}</p>}
                 </div>
                 <div className="form-group mt-2">
                   <label htmlFor="lastNameInput" className="form-label">Last Name</label>
-                  <input type="text" className="form-control" id="lastNameInput" required value={last_name} onChange={(e) => setLastName(e.target.value)} />
+                  <input type="text" className="form-control" id="lastNameInput" name="last_name" required value={formData.last_name} onChange={handleChange} />
+                  {formErrors.last_name && <p className="text-danger">{formErrors.last_name}</p>}
                 </div>
                 <button type="submit" className="btn btn-primary col-12 mt-3">Create Account</button>
                 <div className="text-center mt-2">
