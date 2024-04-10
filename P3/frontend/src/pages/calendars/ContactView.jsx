@@ -259,6 +259,9 @@ const ContactView = ({ calendar, token, isOwner }) => {
             </div>
 
         </div>
+        <footer className="footer text-center align-items-center">
+            <p>&copy; 2024 1on1 Meetings. All rights reserved.</p>
+        </footer>
         </>
     );
 };

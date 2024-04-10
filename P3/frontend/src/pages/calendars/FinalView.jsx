@@ -122,6 +122,9 @@ const FinalView = ({ calendar, token, isOwner }) => {
 
             {isOwner && <button className="owner-button btn-delete" onClick={handleDeleteCalendar}>Delete Calendar</button>}
         </div>
+        <footer className="footer text-center align-items-center">
+            <p>&copy; 2024 1on1 Meetings. All rights reserved.</p>
+        </footer>
         </>
     );
 };
