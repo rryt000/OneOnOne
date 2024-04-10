@@ -454,6 +454,9 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                 )}
                 <button className="owner-button btn-delete" onClick={handleDeleteCalendar}>Delete Calendar</button>
             </div>
+            <footer className="footer text-center py-3">
+        <p>&copy; 2024 1on1 Meetings. All rights reserved.</p>
+      </footer>
         </>
       );
       

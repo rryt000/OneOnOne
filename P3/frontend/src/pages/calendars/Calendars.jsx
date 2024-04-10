@@ -99,7 +99,7 @@ const CalendarPage = () => {
         
   <main>
   <div className="container-sm">
-    <h1 className="text-center my-4">Primary Calendars</h1>
+    <h2 className="text-center my-4">Primary Calendars</h2>
     <div className="add-calendar-form">
     <form onSubmit={handleAddCalendar} className="calendar-form">
     <input 
@@ -117,7 +117,7 @@ const CalendarPage = () => {
       onChange={(e) => setNewCalendarComment(e.target.value)} 
       placeholder="Enter a Calendar Comment (Optional)" 
     />
-    <button type="submit" className="btn btn-primary">Create</button>
+    <button type="submit" className="btn btn-primary">Create Calendar</button>
     </form>
     </div>
           <div className="row">
@@ -160,7 +160,7 @@ const CalendarPage = () => {
         </div>
 
         <div className="container-sm">
-    <h1 className="text-center my-4">Secondary Calendars</h1>
+    <h2 className="text-center my-4">Secondary Calendars</h2>
      
           <div className="row">
             {/* Finalized Calendars */}
