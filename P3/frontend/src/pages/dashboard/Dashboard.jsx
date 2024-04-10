@@ -1,17 +1,53 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import { useAuth } from "../../hooks/AuthProvider";
+import axios from 'axios';
+
 
 const Dashboard = () => {
 
+  const [notifications, setNotifications] = useState([]);
+
   const auth = useAuth();
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
 
   console.log(auth.user);
 
   const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
 
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/calendars/notifications/', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setNotifications(response.data);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+  }, [token]);
+
+  const handleNotificationClick = async (notificationId) => {
+    try {
+      await axios.delete(`http://localhost:8000/notifications/${notificationId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setNotifications(currentNotifications =>
+        currentNotifications.filter(n => n.id !== notificationId));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+    }
+  };
+
 
   return (
     <>
@@ -44,27 +80,26 @@ const Dashboard = () => {
     </nav>
  
 
-      <main>
+    <main>
         <div className="container-sm">
-          <h1 className="text-center my-4">Welcome back {auth.user?.username}.</h1>
-          <div className="row row-gap-4">
-            <div className="d-flex flex-column align-items-center col-12">
-              <h2>Upcoming Meetings</h2>
-              <div className="list-group">
-                <button type="button" className="list-group-item list-group-item-action">Monday, March 3rd at 3pm with Jason</button>
-              </div>
-            </div>
-            <div className="col-6">
-              <h2>Jump back into an existing calendar.</h2>
-              <div className="list-group">
-                <button type="button" className="list-group-item list-group-item-action d-flex justify-content-between align-items-start">Calendar 1 <span className="badge rounded-pill">1</span></button>
-                <button type="button" className="list-group-item list-group-item-action">Calendar 2</button>
-                <button type="button" className="list-group-item list-group-item-action">Calendar 3</button>
-              </div>
-            </div>
-            <div className="d-flex flex-column align-items-center col-6">
-              <h2>Start a new calendar.</h2>
-              <a href="calendars" className="btn btn-primary btn-lg">New Calendar</a>
+        <h2 className="text-center my-4">Welcome back {auth.user?.username}.</h2>
+          <div className="notifications">
+            <h3>Notifications</h3>
+            <div className="list-group">
+              {notifications.length === 0 ? (
+                <p>No new notifications</p>
+              ) : (
+                notifications.map(notification => (
+                  <Link
+                    to={`http://localhost:8000//calendars/${notification.calendarId}`}
+                    className="list-group-item list-group-item-action"
+                    key={notification.id}
+                    onClick={() => handleNotificationClick(notification.id)}
+                  >
+                    {notification.txt}
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>
