@@ -68,6 +68,7 @@ class CalendarListSecondary(APIView):
                 has_submitted = True
             else:
                 CalendarContact.objects.filter(calendar=calendar, contact=request.user).update(has_submitted=False)
+                has_submitted = False
             if calendar.status == 'finalized':
                 datapoint['contact_status'] = 'finalized'
             elif has_submitted:
@@ -96,6 +97,7 @@ class CalendarListSecondary(APIView):
                 has_submitted = True
             else:
                 CalendarContact.objects.filter(calendar=calendar, contact=request.user).update(has_submitted=False)
+                has_submitted = False
             if calendar.status == 'finalized':
                 datapoint['contact_status'] = 'finalized'
             elif has_submitted:
