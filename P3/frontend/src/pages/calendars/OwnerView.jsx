@@ -398,7 +398,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
           </div>
       
           <h3>Timeslots:</h3>
-          {loadingTimeslots && <p>Loading timeslots...</p>}
+          {loadingTimeslots}
             {timeslotError && <p>Error loading timeslots: {timeslotError.message}</p>}
             <ul>
                 {timeslots.map(timeslot => (
