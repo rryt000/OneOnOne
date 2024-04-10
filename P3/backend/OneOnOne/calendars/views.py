@@ -579,3 +579,20 @@ class CalendarSuggest(APIView):
         
         # If no valid timeslots are found
         return Response({"message": "No possible timeslots based on the criteria."})
+
+
+class TimeslotsRemaining(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, calendar_id):
+        calendar = get_object_or_404(Calendar, id=calendar_id)
+        user = request.user
+
+        if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists() and calendar.owner != user:
+            return Response({"error": "You are not authorized to access this calendar"}, status=status.HTTP_403_FORBIDDEN)
+
+        voted_timeslot_ids = TimeSlotVote.objects.filter(calendar=calendar, contact=user).values_list('timeslot', flat=True)
+        remaining_timeslots = TimeSlot.objects.filter(calendar=calendar).exclude(id__in=voted_timeslot_ids)
+
+        serializer = TimeSlotSerializer(remaining_timeslots, many=True)
+        return Response(serializer.data)
