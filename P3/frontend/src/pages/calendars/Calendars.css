@@ -34,6 +34,7 @@ header {
 /* main {
     flex: 1;
 } */
+} */
  
 .navbar {
     background-color: var(--tertiary);
@@ -125,27 +126,27 @@ h2 {
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
- 
+
 .calendar-form input,
 .calendar-form button {
 width: 100%; 
 padding: 8px;
 margin-bottom: 10px; 
 }
- 
+
 .calendar-form button {
 background-color: var(--action);
 color: var(--secondary);
 border: none;
 cursor: pointer;
 }
- 
+
 .add-calendar-form {
 width: 100%; 
 display: flex;
 justify-content: center; 
 }
- 
+
 .calendar-form {
 width: 32%; 
 margin: auto; 
@@ -154,7 +155,7 @@ flex-direction: column;
 align-items: center; 
 gap: 10px;
 }
- 
+
 body {
     display: flex;
     flex-direction: column; /* maintains the document flow */
@@ -164,16 +165,16 @@ body {
     padding-bottom:3rem;
     box-sizing: inherit;
 }
- 
+
 main {
     flex: 1; /* consumes all available space */
 }
- 
+
 html {
     height: 100%;
     box-sizing: border-box;
 }
- 
+
 footer {
     background-color: var(--tertiary);
     height: 3rem; /* your desired height */
@@ -183,11 +184,11 @@ footer {
     left: 0;
     bottom: 0;
 }
- 
+
 .gold {
     color: #A98A22;
 }
- 
+
 .green {
     color: skyblue !important;
 }

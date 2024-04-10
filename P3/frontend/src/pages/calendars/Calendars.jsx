@@ -99,7 +99,7 @@ const CalendarPage = () => {
         
   <main>
   <div className="container-sm">
-    <h2 className="text-center my-4">Primary Calendars</h2>
+    <h2 className="text-center my-4 gold">Create a Calendar</h2>
     <div className="add-calendar-form">
     <form onSubmit={handleAddCalendar} className="calendar-form">
     <input 
@@ -119,11 +119,13 @@ const CalendarPage = () => {
     />
     <button type="submit" className="btn btn-primary">Create Calendar</button>
     </form>
+    
     </div>
+    <h2 className="text-center my-4 gold">Primary Calendars</h2>
           <div className="row">
             {/* Finalized Calendars */}
             <div className="col-md-4">
-              <h2>Finalized Calendars</h2>
+              <h2 className="green">Finalized Calendars</h2>
               <div className="list-group">
                 {finalizedCalendars.map(calendar => (
                   <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
@@ -135,7 +137,7 @@ const CalendarPage = () => {
 
             {/* Submitted Calendars */}
             <div className="col-md-4">
-              <h2>Submitted Calendars</h2>
+              <h2 className="green">Submitted Calendars</h2>
               <div className="list-group">
                 {submittedCalendars.map(calendar => (
                   <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
@@ -147,7 +149,7 @@ const CalendarPage = () => {
 
             {/* In Progress Calendars */}
             <div className="col-md-4">
-              <h2>In Progress Calendars</h2>
+              <h2 className="green">In Progress Calendars</h2>
               <div className="list-group">
                 {inProgressCalendars.map(calendar => (
                   <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
@@ -160,12 +162,12 @@ const CalendarPage = () => {
         </div>
 
         <div className="container-sm">
-    <h2 className="text-center my-4">Secondary Calendars</h2>
+    <h2 className="text-center my-4 gold">Secondary Calendars</h2>
      
           <div className="row">
             {/* Finalized Calendars */}
             <div className="col-md-4">
-              <h2>Finalized Calendars</h2>
+              <h2 className="green">Finalized Calendars</h2>
               <div className="list-group">
                 {contactFinalizedCalendars.map(calendar => (
                   <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
@@ -177,7 +179,7 @@ const CalendarPage = () => {
 
             {/* Submitted Calendars */}
             <div className="col-md-4">
-              <h2>Submitted Calendars</h2>
+              <h2 className="green">Submitted Calendars</h2>
               <div className="list-group">
                 {contactSubmittedCalendars.map(calendar => (
                   <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
@@ -189,7 +191,7 @@ const CalendarPage = () => {
 
             {/* In Progress Calendars */}
             <div className="col-md-4">
-              <h2>In Progress Calendars</h2>
+              <h2 className="green">In Progress Calendars</h2>
               <div className="list-group">
                 {contactInProgressCalendars.map(calendar => (
                   <Link to={`/calendars/${calendar.id}`} className="list-group-item list-group-item-action" key={calendar.id}>
