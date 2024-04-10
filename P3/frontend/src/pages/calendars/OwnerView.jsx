@@ -4,6 +4,8 @@ import './OwnerView.css';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
+import JustFinalizedView from './JustFinalizedView';
+
 
 const OwnerView = ({ calendar, token, isOwner }) => {
     const [loadingTimeslots, setLoadingTimeslots] = useState(true);
@@ -27,6 +29,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
     const [suggested, setSuggested] = useState(false);
     const auth = useAuth();
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+	const [isFinalized, setIsFinalized] = useState(false);
     const [newTimeslot, setNewTimeslot] = useState({
         startDateTime: '',
         duration: 30,
@@ -121,7 +124,8 @@ const OwnerView = ({ calendar, token, isOwner }) => {
             const response = await axios.post(`${backendUrl}/calendars/${calendar.id}/finalization/`, 
                 {   timeslot_id : timeslot.timeslot_id},
                 {   headers: { Authorization: `Bearer ${token}` } });
-            navigate("/calendars/"); 
+            // navigate("/calendars/");
+			setIsFinalized(true);
         } catch (error) {
             console.error('Error finalizing calendar:', error)
         }
@@ -230,7 +234,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
             await axios.delete(`${backendUrl}/calendars/${calendar.id}/`, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            navigate("/calendars"); 
+            navigate("/calendars/"); 
         } catch (error) {
             console.error('Error deleting calendar:', error);
         }
@@ -260,9 +264,46 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         const offset = date.getTimezoneOffset();
         const adjustedDate = new Date(date.getTime() - offset * 60 * 1000);
         return adjustedDate.toISOString().split('.')[0].slice(0, -3);
-      };
+    };
       
+	const notifyContacts = async () => {
+		let concatenatedContacts = "" 
+		const unsubmittedContacts = contacts.filter(contact => contact.has_submitted === false);
+		for (let i = 0; i < unsubmittedContacts.length; i++) {
+			concatenatedContacts += unsubmittedContacts[i].email;
+			if (i < unsubmittedContacts.length - 1) {
+			  concatenatedContacts += ",";
+			}
+		}
+		// `http://localhost:3000/calendars/${calendar.id}`
+		const link = `http://localhost:3000/calendars/${calendar.id}`;
+		const subject = encodeURIComponent(`Reminder: Calendar ${calendar.name} requires your preference input.`);
+		const body = encodeURIComponent(`Click this link, for sure absolutely safe, will take you to the calendar for quick access:\n\n${link}\n\nBest,\n${auth.user.username}`);
+		
+		// Directly navigating to the mailto link including the concatenated contacts, subject, and body
+		const mailtoLink = `mailto:${concatenatedContacts}?subject=${subject}&body=${body}`;
+		window.location.href = mailtoLink;
+	}
 
+	// const notifyFinalization = async () => {
+	// 	let concatenatedContacts = "" 
+	// 	for (let i = 0; i < contacts.length; i++) {
+	// 		concatenatedContacts += contacts[i].email;
+	// 		if (i < contacts.length - 1) {
+	// 		  concatenatedContacts += ",";
+	// 		}
+	// 	}
+	// 	// `http://localhost:3000/calendars/${calendar.id}`
+	// 	const link = `http://localhost:3000/calendars/${calendar.id}`;
+	// 	const subject = encodeURIComponent(`Notification: Calendar ${calendar.name} has been finalized.`);
+	// 	const body = encodeURIComponent(`Click this link, for sure absolutely safe, will take you to the calendar for quick access:\n\n${link}\n\nBest,\n${auth.user.username}`);
+		
+	// 	// Directly navigating to the mailto link including the concatenated contacts, subject, and body
+	// 	const mailtoLink = `mailto:${concatenatedContacts}?subject=${subject}&body=${body}`;
+	// 	window.location.href = mailtoLink;
+	// }
+
+	
     const handleSaveEdit = async () => {
         const formattedTimeslot = {
             start_date_time: toLocalDateTime(editingTimeslot.startDateTime),
@@ -305,6 +346,9 @@ const OwnerView = ({ calendar, token, isOwner }) => {
 
     return (
         <>
+		{isFinalized ? (
+            <JustFinalizedView calendar={calendar} token={token} isOwner={isOwner} contacts={contacts} user={auth.user}/>
+        ) : (<>
         <nav className="navbar navbar-expand-lg">
         <div className="container">
             <Link className="navbar-brand" to="/dashboard/">1on1</Link>
@@ -351,9 +395,18 @@ const OwnerView = ({ calendar, token, isOwner }) => {
             </select>
             <button className="owner-button" onClick={handleAddContact}>Add Contact</button>
             </div>
-            
-          <h3>Contacts List:</h3>
-          <ul>
+            <ul>
+            <li>
+            <h3>Contacts List:</h3>
+            {calendar.status === "created" && <button 
+				className="owner-button green-btn" 
+				onClick={notifyContacts}
+				disabled={contacts.filter(contact => !contact.has_submitted).length === 0}>
+				Remind Contacts
+			</button>}
+            </li>
+            </ul>
+            <ul>
             {contacts.map(contact => (
               <li key={contact.id} className="owner-contact-item">
                 {contact.username} - {contact.has_submitted ? 'Submitted' : 'Not Submitted'}
@@ -502,11 +555,14 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                 <button className="owner-button btn-delete" onClick={handleDeleteCalendar}>Delete Calendar</button>
             </div>
             <footer className="footer text-center py-3">
-        <p>&copy; 2024 1on1 Meetings. All rights reserved.</p>
-      </footer>
+				<p>&copy; 2024 1on1 Meetings. All rights reserved.</p>
+			</footer>
+			</>)}
         </>
       );
       
 };
 
 export default OwnerView;
+
+// <a href="mailto:rubin.rastogi@mail.utoronto.ca,inan.sanon@mail.utoronto.ca?subject=More%20info...&body=I%20was%20on%20your%20website%20and%20would%20like%20to%20learn%20more%20about:%0D%0A%0D%0A" class="email_address">rubin.rastogi@mail.utoronto.ca</a>
