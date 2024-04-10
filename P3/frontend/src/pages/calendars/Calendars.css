@@ -31,10 +31,6 @@ header {
     width:100vh;
 }
  
-/* main {
-    flex: 1;
-} */
-} */
  
 .navbar {
     background-color: var(--tertiary);
