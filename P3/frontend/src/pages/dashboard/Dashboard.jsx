@@ -3,52 +3,54 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import { useAuth } from "../../hooks/AuthProvider";
 import axios from 'axios';
-
-
+ 
+ 
 const Dashboard = () => {
-
-  const [notifications, setNotifications] = useState([]);
-
-  const auth = useAuth();
-  const { token } = useAuth();
-  const navigate = useNavigate();
-
-
-  console.log(auth.user);
-
-  const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
-
-  const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
-
-  useEffect(() => {
+ 
+    const [notifications, setNotifications] = useState([]);
+ 
+    const auth = useAuth();
+    const { token } = useAuth();
+    const navigate = useNavigate();
+ 
+ 
+    console.log(auth.user);
+ 
+    const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+ 
+    const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+ 
     const fetchNotifications = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/calendars/notifications/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setNotifications(response.data);
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
+        try {
+            const response = await axios.get('http://localhost:8000/calendars/notifications/', {
+            headers: { Authorization: `Bearer ${token}` }
+            });
+            setNotifications(response.data);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
     };
-
-    fetchNotifications();
-  }, [token]);
-
-  const handleNotificationClick = async (notificationId) => {
-    try {
-      await axios.delete(`http://localhost:8000/notifications/${notificationId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      setNotifications(currentNotifications =>
-        currentNotifications.filter(n => n.id !== notificationId));
-    } catch (error) {
-      console.error('Error deleting notification:', error);
-    }
-  };
-
-
+ 
+    useEffect(() => {
+        fetchNotifications();
+    }, [token]);
+ 
+    const handleNotificationClick = async (notification) => {
+        try {
+            await axios.delete(`http://localhost:8000/calendars/notifications/${notification.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+            });
+ 
+            await fetchNotifications();
+            console.log(notification.calendar)
+            navigate(`/calendars/${notification.calendar}`);
+ 
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
+    };
+ 
+ 
   return (
     <>
    
@@ -79,7 +81,7 @@ const Dashboard = () => {
         </div>
     </nav>
  
-
+ 
     <main>
         <div className="container-sm">
         <h2 className="text-center my-4">Welcome back {auth.user?.username}.</h2>
@@ -90,26 +92,26 @@ const Dashboard = () => {
                 <p>No new notifications</p>
               ) : (
                 notifications.map(notification => (
-                  <Link
-                    to={`http://localhost:8000//calendars/${notification.calendarId}`}
+                  <div
+                    // to={`http://localhost:8000/calendars/${notification.calendar.id}`}
                     className="list-group-item list-group-item-action"
                     key={notification.id}
-                    onClick={() => handleNotificationClick(notification.id)}
+                    onClick={() => handleNotificationClick(notification)}
                   >
                     {notification.txt}
-                  </Link>
+                  </div>
                 ))
               )}
             </div>
           </div>
         </div>
       </main>
-
+ 
       <footer className="footer text-center py-3 container-fluid">
         <p>2024 1on1 Meetings. All rights reserved.</p>
       </footer>
     </>
   );
 };
-
+ 
 export default Dashboard;
