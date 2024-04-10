@@ -6,6 +6,9 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 
 const OwnerView = ({ calendar, token, isOwner }) => {
+    const [loadingTimeslots, setLoadingTimeslots] = useState(true);
+    const [timeslotError, setTimeslotError] = useState(null);
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -64,25 +67,31 @@ const OwnerView = ({ calendar, token, isOwner }) => {
 
 
     const fetchTimeslots = async () => {
+        setIsLoading(true);
         try {
-            // Fetching the timeslots
             const timeslotsResponse = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslots/`, { headers: { Authorization: `Bearer ${token}` } });
             
-            // Fetching the votes for each timeslot
-            const votesResponse = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslot-votes/`, { headers: { Authorization: `Bearer ${token}` } });
-    
-            // Mapping votes to their respective timeslots
-            const timeslotsWithVotes = timeslotsResponse.data.map(timeslot => {
+            const fetchedTimeslots = Array.isArray(timeslotsResponse.data) ? timeslotsResponse.data : [];
+            
+            const votesResponse = fetchedTimeslots.length > 0
+                ? await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslot-votes/`, { headers: { Authorization: `Bearer ${token}` } })
+                : { data: [] };
+            
+            const timeslotsWithVotes = fetchedTimeslots.map(timeslot => {
                 const votesForTimeslot = votesResponse.data.find(voteEntry => voteEntry.timeslot_id === timeslot.id)?.votes || [];
                 return { ...timeslot, votes: votesForTimeslot };
             });
     
-            // Setting the state with timeslots and their corresponding votes
             setTimeslots(timeslotsWithVotes);
+            setError(null); 
         } catch (error) {
             console.error('Error fetching timeslots:', error);
+            setTimeslotError(error); 
+            setTimeslots([]); 
         }
+        setIsLoading(false);
     };
+    
     
 
     const fetchPossibleContacts = async () => {
@@ -389,6 +398,8 @@ const OwnerView = ({ calendar, token, isOwner }) => {
           </div>
       
           <h3>Timeslots:</h3>
+          {loadingTimeslots && <p>Loading timeslots...</p>}
+            {timeslotError && <p>Error loading timeslots: {timeslotError.message}</p>}
             <ul>
                 {timeslots.map(timeslot => (
                     <li key={timeslot.id}>
@@ -436,13 +447,14 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                                     <button onClick={() => handleEditClick(timeslot)}>Edit</button>
                                     <button className="owner-button btn-delete" onClick={() => handleDeleteTimeslot(timeslot.id)}>Delete</button>
                                     <label htmlFor={`timeslot-vote-dropdown-${timeslot.id}`}>Votes: </label>
-                <select id={`timeslot-vote-dropdown-${timeslot.id}`}>
-                    {timeslot.votes.map((vote, index) => (
-                        <option key={index} value={vote.contact}>
-                            {vote.contact} - {vote.preference}
-                        </option>
-                    ))}
-                </select>
+                                    <select id={`timeslot-vote-dropdown-${timeslot.id}`}>
+                                    {Array.isArray(timeslot.votes) && timeslot.votes.map((vote, index) => (
+                                        <option key={index} value={vote.contact}>
+                                        {vote.contact} - {vote.preference}
+                                        </option>
+                                    ))}
+                                    </select>
+
                                 </div>
                                 
                                 </div>
