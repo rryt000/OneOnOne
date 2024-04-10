@@ -126,6 +126,8 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                 {   headers: { Authorization: `Bearer ${token}` } });
             // navigate("/calendars/");
 			setIsFinalized(true);
+            notifyFinalization();
+
         } catch (error) {
             console.error('Error finalizing calendar:', error)
         }
@@ -342,6 +344,46 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         }
     };
 
+    const notifyFinalization = async () => {
+        contacts.forEach(async (contact) => {
+            try {
+                await axios.post(`${backendUrl}/calendars/notifications/`, 
+                    {
+                        contact_id: contact.id,
+                        calendar_id: calendar.id,
+                        txt: `Calendar - ${calendar.name} was finalized`
+                    },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (error) {
+                console.error(`Error sending finalization notification to ${contact.username}:`, error);
+            }
+        });
+
+    alert("Notifications sent regarding calendar finalization.");
+};
+
+
+    const sendPreferenceReminder = async () => {
+        const unsubmittedContacts = contacts.filter(contact => !contact.has_submitted);
+        for (const contact of unsubmittedContacts) {
+            try {
+                await axios.post(`${backendUrl}/calendars/notifications/`, 
+                    {
+                        contact_id: contact.id,
+                        calendar_id: calendar.id, 
+                        txt: `Reminder: Calendar - ${calendar.name} requires your preference input.`
+                    },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (error) {
+                console.error(`Error sending reminder to contact ${contact.id}:`, error);
+            }
+        }
+        alert(`${unsubmittedContacts.length} reminder(s) sent.`);
+    }
+    
+
     
 
     return (
@@ -402,8 +444,16 @@ const OwnerView = ({ calendar, token, isOwner }) => {
 				className="owner-button green-btn" 
 				onClick={notifyContacts}
 				disabled={contacts.filter(contact => !contact.has_submitted).length === 0}>
-				Remind Contacts
+				Remind Contacts by Email
 			</button>}
+
+            {calendar.status === "created" && <button 
+				className="owner-button blue-btn" 
+				onClick={sendPreferenceReminder}
+				disabled={contacts.filter(contact => !contact.has_submitted).length === 0}>
+				Send notification to Contact
+			</button>}
+            
             </li>
             </ul>
             <ul>
