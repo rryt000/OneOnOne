@@ -12,7 +12,7 @@ from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.db.models import Prefetch
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, F
 
 
 
@@ -552,7 +552,8 @@ class CalendarSuggest(APIView):
         ).values(
             'timeslot'
         ).annotate(
-            total_preference=Sum('preference'),
+            # Sum of votes' preferences plus the timeslot's own preference
+            total_preference=Sum('preference') + F('timeslot__preference'),
             vote_count=Count('contact', distinct=True)
         ).order_by('-total_preference')
 
@@ -561,8 +562,13 @@ class CalendarSuggest(APIView):
         valid_timeslots = [vote for vote in timeslot_votes if vote['vote_count'] == total_contacts]
 
         # Fetch the timeslot details for the top 3 (or fewer) valid timeslots
+
         timeslot_ids = [vote['timeslot'] for vote in valid_timeslots[:3]]
-        suggested_timeslots = TimeSlot.objects.filter(id__in=timeslot_ids)
+        suggested_timeslots = []
+
+        for id in timeslot_ids:
+            suggested_timeslots.append(get_object_or_404(TimeSlot, id=id))
+
 
         # If there are valid suggested timeslots
         if suggested_timeslots:
@@ -572,7 +578,7 @@ class CalendarSuggest(APIView):
                 "duration": ts.duration,
                 "comment": ts.comment,
                 "preference": ts.preference,
-                "total_preference": next((item for item in valid_timeslots if item["timeslot"] == ts.id), {}).get('total_preference', 0) + ts.preference
+                "total_preference": next((item for item in valid_timeslots if item["timeslot"] == ts.id), {}).get('total_preference', 0)
             } for ts in suggested_timeslots]
             
             message = "Suggested timeslots based on preferences." if len(suggested_timeslots) == 3 else "These are the only possible suggested timeslots."
