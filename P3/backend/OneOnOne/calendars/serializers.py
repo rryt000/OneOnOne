@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Calendar, TimeSlot, CalendarContact, TimeSlotVote
+from .models import Calendar, TimeSlot, CalendarContact, TimeSlotVote, Notification
 from django.contrib.auth import get_user_model
 
 class CalendarSerializer(serializers.ModelSerializer):
@@ -41,3 +41,9 @@ class TimeSlotVoteSerializer(serializers.ModelSerializer):
    class Meta:
        model = TimeSlotVote
        fields = ['id', 'timeslot', 'preference']
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'user', 'calendar', 'txt']
+        

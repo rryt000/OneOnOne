@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CalendarListPrimary, CalendarListSecondary, CalendarDetail, TimeSlotList, TimeSlotDetail, CalendarContactList, CalendarContactDetail, CalendarContactDelete, TimeSlotVoteView, CalendarTimeSlotVotesView, CalendarFinalize, CalendarSuggest, TimeslotsRemaining
+from .views import CalendarListPrimary, CalendarListSecondary, CalendarDetail, TimeSlotList, TimeSlotDetail, CalendarContactList, CalendarContactDetail, CalendarContactDelete, TimeSlotVoteView, CalendarTimeSlotVotesView, CalendarFinalize, CalendarSuggest, TimeslotsRemaining, NotificationList, NotificationDelete
 
 
 app_name = 'calendars'
@@ -18,4 +18,6 @@ urlpatterns = [
     path('<int:calendar_id>/suggestions/', CalendarSuggest.as_view(), name='calendar_suggestions'),
     # path('<int:calendar_id>/submissions/<int:contact_id>', CalendarSubmission.as_view(), name='calendar_submissions'),
     path('<int:calendar_id>/remaining-timeslots/', TimeslotsRemaining.as_view(), name='remaining_timeslots'),
+    path('notifications/', NotificationList.as_view(), name='notifications'),
+    path('notifications/<int:notification_id>/', NotificationDelete.as_view(), name="notifications_delete"),
 ]

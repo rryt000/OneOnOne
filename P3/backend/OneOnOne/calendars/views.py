@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import TimeSlot, Calendar, CalendarContact, TimeSlotVote
-from .serializers import CalendarSerializer, TimeSlotSerializer, CalendarContactSerializer, TimeSlotVoteSerializer
+from .models import TimeSlot, Calendar, CalendarContact, TimeSlotVote, Notification
+from .serializers import CalendarSerializer, TimeSlotSerializer, CalendarContactSerializer, TimeSlotVoteSerializer, NotificationSerializer
 from django.http import Http404, HttpResponse, JsonResponse
 from django.core.exceptions import PermissionDenied
 from contacts.serializers import CustomUserSerializer
@@ -597,3 +597,37 @@ class TimeslotsRemaining(APIView):
 
         serializer = TimeSlotSerializer(remaining_timeslots, many=True)
         return Response(serializer.data)
+
+
+class NotificationList(APIView):
+    """
+    GET: gets the notifications of current user.
+    POST: creates a notification for a certain user, calendar, with certain txt.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        notifications = Notification.objects.filter(user=request.user)
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, *args, **kwargs):
+        serializer = NotificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class NotificationDelete(APIView):
+    """
+    DELETE: deletes a specified (by id) notification of current user. 
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        notification_id = self.kwargs['notification_id']
+        notification = get_object_or_404(Notification, id=notification_id)
+        if request.user != notification.user:
+            raise PermissionDenied
+        notification.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

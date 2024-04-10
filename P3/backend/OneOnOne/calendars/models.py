@@ -80,3 +80,11 @@ class TimeSlotVote(models.Model):
 
    def __str__(self):
        return f"Calendar: {self.calendar.name}, Contact: {self.contact.username}, Timeslot: {self.timeslot.start_date_time}, Preference: {self.preference}"
+
+class Notification(models.Model):
+    calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    txt = models.TextField()
+
+    def __str__(self):
+        return f"User: {self.user.username}, Calendar: {self.calendar.name}, txt: {self.txt}"
