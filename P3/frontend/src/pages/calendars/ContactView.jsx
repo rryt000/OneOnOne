@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 
-const ContactView = ({ calendar, token }) => {
+const ContactView = ({ calendar, token, isOwner }) => {
     const backendUrl = 'http://localhost:8000'; 
 
     if (!calendar) return <p>Loading...</p>;

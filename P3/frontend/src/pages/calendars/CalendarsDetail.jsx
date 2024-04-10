@@ -59,11 +59,11 @@ const CalendarDetailPage = () => {
     <div>
         <h1>{calendar ? calendar.name : 'Loading...'}</h1>
         {(isOwner || isContact) && isFinalized ? (
-            <FinalView calendar={calendar} token={token} />
+            <FinalView calendar={calendar} token={token} isOwner={isOwner}/>
         ) : isOwner ? (
-            <OwnerView calendar={calendar} token={token} />
+            <OwnerView calendar={calendar} token={token} isOwner={isOwner}/>
         ) : isContact ? (
-            <ContactView calendar={calendar} token={token}/>
+            <ContactView calendar={calendar} token={token} isOwner={isOwner}/>
         ) : (
             <div>
                 <h2>404 Error</h2>

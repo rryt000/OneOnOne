@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 
-const OwnerView = ({ calendar, token }) => {
+const OwnerView = ({ calendar, token, isOwner }) => {
     const navigate = useNavigate();
     const [editingTimeslotId, setEditingTimeslotId] = useState(null);
     const [editingTimeslot, setEditingTimeslot] = useState({});
@@ -109,13 +109,32 @@ const OwnerView = ({ calendar, token }) => {
             } else {
                 // Handle cases with no suggestions but with a message (e.g., calendar not submitted, already finalized)
                 setSuggested(false)
-                setFailMessage("Please edit your timeslots, currently no timeslots meet all users' requirements.")
+                handleFailMessage()
             }
         } catch (error) {
             console.error('Error suggesting calendar:', error.response ? error.response.data : error.message);
             setSuggested(false); // Ensure suggested is set to false on error
-            setFailMessage("Please edit your timeslots, currently no timeslots meet all users' requirements.")
+            handleFailMessage()
         }
+    }
+
+    const handleFailMessage = async () => {
+        if (suggested) {
+            return
+        }
+        // check if no contacts
+        if (contacts.length === 0) {
+            setFailMessage("Please add at least one contact.")
+        }
+        // not submitted
+        else if (calendar.status === "created") {
+            setFailMessage("Not all contacts have submitted their preferences yet.")
+        }
+        // other fail
+        else {
+            setFailMessage("No timeslot meets all contacts' availabilities. Please add new timeslots or update existing timeslots to meet their requirements.")
+        }
+
     }
 
     const handleAddContact = async () => {
@@ -281,7 +300,7 @@ const OwnerView = ({ calendar, token }) => {
         <div className="owner-container">
           <h2>Calendar: {calendar.name}</h2>
           {/* if calendar.comment !== "": */}
-          {calendar.comment !== "" && <h2>Comment: {calendar.comment}</h2>}
+          {calendar.comment !== "" && <h5>Comment: {calendar.comment}</h5>}
       
           {/* Contact management section */}
             <div className="owner-contact-form">
@@ -425,7 +444,7 @@ const OwnerView = ({ calendar, token }) => {
                         </ul>
                     </>
                 )}
-                {console.log(suggested + failMessage)}
+                {/* {handleFailMessage()} */}
                 {!suggested && (
                 <>
                 <div>

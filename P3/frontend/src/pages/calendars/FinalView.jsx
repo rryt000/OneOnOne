@@ -1,54 +1,128 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import './FinalView.css';
+import { useAuth } from "../../hooks/AuthProvider";
 
-const FinalView = ({ calendar, token }) => {
-    console.log('Finalllllllll')
-    const backendUrl = 'http://localhost:8000'; 
 
-    if (!calendar) return <p>Loading...</p>;
+const FinalView = ({ calendar, token, isOwner }) => {
+    const navigate = useNavigate();
+    const backendUrl = 'http://localhost:8000';
+    const [contacts, setContacts] = useState([]);
+    const [finalizedTimeslot, setFinalizedTimeslot] = useState(null);
+    const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+    const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+    const auth = useAuth();
 
-    const contacts = calendar.contacts || [];
-    const timeslots = calendar.timeslots || [];
 
-    // Function to submit timeslot preferences
-    const handleSubmitTimeslotPreference = async (timeslotId, preference) => {
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    };
+
+    const fetchContacts = async () => {
         try {
-            await axios.post(`${backendUrl}/calendars/${calendar.id}/vote/`, 
-                { timeslot: timeslotId, preference },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setContacts(response.data);
         } catch (error) {
-            console.error('Error submitting timeslot preference:', error);
+            console.error('Error fetching contacts:', error);
         }
     };
 
-    return (
-        <div>
-            <h2>Calendar: {calendar.name}</h2>
+    const fetchFinalizedTimeslot = async () => {
+        try {
+            // This URL is an example; adjust it as needed to match your API endpoint for fetching the finalized timeslot
+            const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/finalization/`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setFinalizedTimeslot(response.data.finalized_timeslot);
+        } catch (error) {
+            console.error('Error fetching finalized timeslot:', error);
+        }
+    };
 
-            {/* List of Contacts */}
-            <div>
-                <h3>Contacts:</h3>
-                <ul>
-                    {contacts.map(contact => (
-                        <li key={contact.id}>{contact.username} - {contact.has_submitted ? 'Submitted' : 'Not Submitted'}</li>
-                    ))}
+    const handleDeleteCalendar = async () => {
+        try {
+            await axios.delete(`${backendUrl}/calendars/${calendar.id}/`, 
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            navigate("/calendars"); 
+        } catch (error) {
+            console.error('Error deleting calendar:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchContacts();
+        fetchFinalizedTimeslot();
+    }, [calendar.id, token]);
+    
+    return (
+        <>
+        <nav className="navbar navbar-expand-lg">
+        <div className="container">
+            <Link className="navbar-brand" to="/dashboard/">1on1</Link>
+            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
+                    aria-label="Toggle navigation" onClick={handleNavCollapse}>
+                <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse`} id="navbarNav">
+                <ul className="navbar-nav me-auto mb-lg-0">
+                    <li className="nav-item"><Link className="nav-link" to="/dashboard/">Dashboard</Link></li>
+                    <li className="nav-item"><Link className="nav-link" to="/contacts/">Contacts</Link></li>
+                    <li className="nav-item"><Link className="nav-link" to="/calendars/">Calendars</Link></li>
+                </ul>
+                <ul className="navbar-nav ms-auto">
+                    <li className="nav-item"><Link className="nav-link" to="/accounts/">Account</Link></li>
+                    <li className="nav-item">
+                        <a className="nav-link" href="#!" onClick={(e) => {
+                            e.preventDefault();
+                            auth.logOut();
+                        }}>Logout</a>
+                    </li>
                 </ul>
             </div>
-
-            {/* Timeslot Preferences Submission */}
-            <div>
-                <h3>Submit Timeslot Preferences:</h3>
-                {timeslots.map(timeslot => (
-                    <div key={timeslot.id}>
-                        <p>Timeslot: {new Date(timeslot.start_date_time).toLocaleString()}</p>
-                        <button onClick={() => handleSubmitTimeslotPreference(timeslot.id, 1)}>Low Preference</button>
-                        <button onClick={() => handleSubmitTimeslotPreference(timeslot.id, 2)}>Medium Preference</button>
-                        <button onClick={() => handleSubmitTimeslotPreference(timeslot.id, 3)}>High Preference</button>
-                    </div>
-                ))}
-            </div>
         </div>
+        </nav>
+        <div className="owner-container">
+            <h2 className="green"> Finalized Calendar: {calendar.name}</h2>
+            {calendar.comment && <h5>Comment: {calendar.comment}</h5>}
+
+            <h3>Contacts :</h3>
+          <ul>
+            {contacts.map(contact => (
+              <li key={contact.id} className="owner-contact-item">
+                {contact.username}
+              </li>
+            ))}
+          </ul>
+
+            {finalizedTimeslot && (
+                <>
+                <h3>Finalized Timeslot:</h3>
+                <ul>
+                <li>
+                <div className="owner-timeslot-details">
+                    <span>Timeslot: {formatDateTime(finalizedTimeslot.start_date_time)}, Duration: {finalizedTimeslot.duration} minutes</span>
+                </div>
+                </li>
+                </ul>
+                </>
+            )}
+
+            {isOwner && <button className="owner-button btn-delete" onClick={handleDeleteCalendar}>Delete Calendar</button>}
+        </div>
+        </>
     );
 };
 
