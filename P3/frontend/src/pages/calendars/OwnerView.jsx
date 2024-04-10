@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './OwnerView.css';
 import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { useAuth } from "../../hooks/AuthProvider";
 
 const OwnerView = ({ calendar, token }) => {
     const navigate = useNavigate();
@@ -11,6 +13,11 @@ const OwnerView = ({ calendar, token }) => {
     const [contacts, setContacts] = useState([]);
     const [timeslots, setTimeslots] = useState([]);
     const [contactUsername, setContactUsername] = useState('');
+    const [possibleContacts, setPossibleContacts] = useState([]);
+    // const [contactUsername, setContactUsername] = useState('');
+    const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+    const auth = useAuth();
+    const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
     const [newTimeslot, setNewTimeslot] = useState({
         startDateTime: '',
         duration: 30,
@@ -29,30 +36,48 @@ const OwnerView = ({ calendar, token }) => {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
 
+    const fetchContacts = async () => {
+        try {
+            const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/`,
+                { headers: { Authorization: `Bearer ${token}` } });
+            setContacts(response.data);
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+        }
+    };
+
+    const fetchTimeslots = async () => {
+        try {
+            const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslots/`,
+                { headers: { Authorization: `Bearer ${token}` } });
+            setTimeslots(response.data);
+        } catch (error) {
+            console.error('Error fetching timeslots:', error);
+        }
+    };
+
+    const fetchPossibleContacts = async () => {
+        try {
+          const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/detail/`, 
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setPossibleContacts(response.data);
+          if (response.data.length > 0) {
+            setContactUsername(response.data[0].username);
+          }
+        } catch (error) {
+          console.error('Error fetching contacts:', error);
+        }
+      };
+
+
     useEffect(() => {
-        const fetchContacts = async () => {
-            try {
-                const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/`,
-                    { headers: { Authorization: `Bearer ${token}` } });
-                setContacts(response.data);
-            } catch (error) {
-                console.error('Error fetching contacts:', error);
-            }
-        };
-
-        const fetchTimeslots = async () => {
-            try {
-                const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslots/`,
-                    { headers: { Authorization: `Bearer ${token}` } });
-                setTimeslots(response.data);
-            } catch (error) {
-                console.error('Error fetching timeslots:', error);
-            }
-        };
-
+        fetchPossibleContacts();
         fetchContacts();
         fetchTimeslots();
     }, [calendar.id, token]);
+
 
     const handleAddContact = async () => {
         try {
@@ -61,7 +86,8 @@ const OwnerView = ({ calendar, token }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setContactUsername('');
-            setContacts([...contacts, response.data]); 
+            await fetchContacts(); // Re-fetch contacts
+            await fetchPossibleContacts(); // If you want to update possible contacts list as well
         } catch (error) {
             console.error('Error adding contact:', error);
         }
@@ -72,6 +98,8 @@ const OwnerView = ({ calendar, token }) => {
             await axios.delete(`${backendUrl}/calendars/${calendar.id}/contacts/${contactId}/`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            await fetchContacts(); // Re-fetch contacts
+            await fetchPossibleContacts(); // If you want to update possible contacts list as well
         } catch (error) {
             console.error('Error deleting contact:', error);
         }
@@ -182,27 +210,60 @@ const OwnerView = ({ calendar, token }) => {
     
 
     return (
+        <>
+        <nav className="navbar navbar-expand-lg">
+        <div className="container">
+            <Link className="navbar-brand" to="/dashboard/">1on1</Link>
+            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
+                    aria-label="Toggle navigation" onClick={handleNavCollapse}>
+                <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse`} id="navbarNav">
+                <ul className="navbar-nav me-auto mb-lg-0">
+                    <li className="nav-item"><Link className="nav-link" to="/dashboard/">Dashboard</Link></li>
+                    <li className="nav-item"><Link className="nav-link" to="/contacts/">Contacts</Link></li>
+                    <li className="nav-item"><Link className="nav-link" to="/calendars/">Calendars</Link></li>
+                </ul>
+                <ul className="navbar-nav ms-auto">
+                    <li className="nav-item"><Link className="nav-link" to="/accounts/">Account</Link></li>
+                    <li className="nav-item">
+                        <a className="nav-link" href="#!" onClick={(e) => {
+                            e.preventDefault();
+                            auth.logOut();
+                        }}>Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        </nav>
         <div className="owner-container">
           <h2>Calendar: {calendar.name}</h2>
+          {/* if calendar.comment !== "": */}
+          {calendar.comment !== "" && <h2>Comment: {calendar.comment}</h2>}
       
           {/* Contact management section */}
-          <div className="owner-contact-form">
-            <input
-              className="owner-input"
-              type="text"
-              value={contactUsername}
-              onChange={(e) => setContactUsername(e.target.value)}
-              placeholder="Enter contact's username"
-            />
+            <div className="owner-contact-form">
+            <select
+                className="owner-input"
+                value={contactUsername}
+                onChange={(e) => setContactUsername(e.target.value)}
+            >
+                {possibleContacts.map((contact) => (
+                <option key={contact.username} value={contact.username}>
+                    {contact.username}
+                </option>
+                ))}
+            </select>
             <button className="owner-button" onClick={handleAddContact}>Add Contact</button>
-          </div>
-      
+            </div>
+            
           <h3>Contacts List:</h3>
           <ul>
             {contacts.map(contact => (
               <li key={contact.id} className="owner-contact-item">
                 {contact.username} - {contact.has_submitted ? 'Submitted' : 'Not Submitted'}
-                <button className="owner-button btn-delete" onClick={() => handleDeleteContact(contact.id)}>Delete</button>
+                <button className="owner-button btn-delete" onClick={() => handleDeleteContact(contact.contact)}>Delete</button>
               </li>
             ))}
           </ul>
@@ -298,6 +359,7 @@ const OwnerView = ({ calendar, token }) => {
       
           <button className="owner-button" onClick={handleDeleteCalendar}>Delete Calendar</button>
         </div>
+        </>
       );
       
 };
