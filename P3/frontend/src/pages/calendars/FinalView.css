@@ -182,5 +182,5 @@ h1 {
 }
 
 .green {
-    color: green;
+    color: green !important;
 }
