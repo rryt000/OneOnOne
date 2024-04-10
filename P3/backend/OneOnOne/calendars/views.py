@@ -272,6 +272,7 @@ class CalendarContactList(APIView):
         for datapoint in serializer_data:
             contact = get_object_or_404(get_user_model(), id=datapoint.get('contact'))
             datapoint['username'] = contact.username
+            datapoint['email'] = contact.email
 
         return Response(serializer_data)
     

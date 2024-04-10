@@ -181,3 +181,12 @@ h1 {
     background-color: darken(#008000, 10%);
 }
 
+.green-text {
+    color: green;
+}
+
+.center-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
