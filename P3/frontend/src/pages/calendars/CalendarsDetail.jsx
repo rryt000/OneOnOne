@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from "../../hooks/AuthProvider";
 import OwnerView from './OwnerView'; // Update the path as necessary
 import ContactView from './ContactView'; // Update the path as necessary
+import FinalView from './FinalView';
 
 const CalendarDetailPage = () => {
     const { token, user } = useAuth();
@@ -14,6 +15,7 @@ const CalendarDetailPage = () => {
     const [isOwner, setIsOwner] = useState(false);
     const [isContact, setIsContact] = useState(false);
     const [error, setError] = useState('');
+    const [isFinalized, setisFinalized] = useState(false);
 
     useEffect(() => {
         const fetchCalendar = async () => {
@@ -26,7 +28,7 @@ const CalendarDetailPage = () => {
             try {
                 const response = await axios.get(`${backendUrl}/calendars/${calendarId}/`, config);
                 setCalendar(response.data);
-
+                setisFinalized(response.data.status === "finalized")
                 setIsOwner(response.data.owner_id === user.id);
                 console.log("lol")
                 // Check if the user is a calendar participant
@@ -56,10 +58,12 @@ const CalendarDetailPage = () => {
     return (
     <div>
         <h1>{calendar ? calendar.name : 'Loading...'}</h1>
-        {isOwner ? (
+        {(isOwner || isContact) && isFinalized ? (
+            <FinalView calendar={calendar} token={token} />
+        ) : isOwner ? (
             <OwnerView calendar={calendar} token={token} />
         ) : isContact ? (
-            <ContactView calendar={calendar} />
+            <ContactView calendar={calendar} token={token}/>
         ) : (
             <div>
                 <h2>404 Error</h2>

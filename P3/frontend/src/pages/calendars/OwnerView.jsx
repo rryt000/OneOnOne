@@ -14,8 +14,12 @@ const OwnerView = ({ calendar, token }) => {
     const [timeslots, setTimeslots] = useState([]);
     const [contactUsername, setContactUsername] = useState('');
     const [possibleContacts, setPossibleContacts] = useState([]);
+    // const [isSubmitted, setIsSubmitted] = useState(false);
     // const [contactUsername, setContactUsername] = useState('');
+    const [failMessage, setFailMessage] = useState('');
+    const [suggestedTimeslots, setSuggestedTimeslots] = useState([]);
     const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+    const [suggested, setSuggested] = useState(false);
     const auth = useAuth();
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
     const [newTimeslot, setNewTimeslot] = useState({
@@ -69,7 +73,7 @@ const OwnerView = ({ calendar, token }) => {
         } catch (error) {
           console.error('Error fetching contacts:', error);
         }
-      };
+    };
 
 
     useEffect(() => {
@@ -78,6 +82,41 @@ const OwnerView = ({ calendar, token }) => {
         fetchTimeslots();
     }, [calendar.id, token]);
 
+    const handleFinalizeClick = async (timeslot) => {
+        try {
+            const response = await axios.post(`${backendUrl}/calendars/${calendar.id}/finalization/`, 
+                {   timeslot_id : timeslot.timeslot_id},
+                {   headers: { Authorization: `Bearer ${token}` } });
+            navigate("/calendars/"); 
+        } catch (error) {
+            console.error('Error finalizing calendar:', error)
+        }
+    }
+
+    const handleSuggestCalendar = async () => {
+        try {
+            const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/suggestions/`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+    
+            // Check response data for suggestions or messages
+            if (response.data && response.data.timeslots) {
+                // Process suggested timeslots
+                // console.log('Suggested timeslots:', response.data.timeslots);
+                setSuggested(true)
+                setSuggestedTimeslots(response.data.timeslots)
+                // You might want to update state here or show the suggestions to the user in some way
+            } else {
+                // Handle cases with no suggestions but with a message (e.g., calendar not submitted, already finalized)
+                setSuggested(false)
+                setFailMessage("Please edit your timeslots, currently no timeslots meet all users' requirements.")
+            }
+        } catch (error) {
+            console.error('Error suggesting calendar:', error.response ? error.response.data : error.message);
+            setSuggested(false); // Ensure suggested is set to false on error
+            setFailMessage("Please edit your timeslots, currently no timeslots meet all users' requirements.")
+        }
+    }
 
     const handleAddContact = async () => {
         try {
@@ -126,6 +165,7 @@ const OwnerView = ({ calendar, token }) => {
             );
             setNewTimeslot({ startDateTime: '', duration: 30, comment: '', preference: '1' }); 
             setTimeslots([...timeslots, response.data]); 
+            await fetchContacts(); // Re-fetch contacts
         } catch (error) {
             console.error('Error adding timeslot:', error.response ? error.response.data : error);
         }
@@ -202,6 +242,7 @@ const OwnerView = ({ calendar, token }) => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setTimeslots(timeslots.filter(t => t.id !== timeslotId));
+            await fetchContacts(); // Re-fetch contacts
         } catch (error) {
             console.error('Error deleting timeslot:', error.response ? error.response.data : error);
         }
@@ -356,9 +397,44 @@ const OwnerView = ({ calendar, token }) => {
                     </li>
                 ))}
             </ul>
-      
-          <button className="owner-button" onClick={handleDeleteCalendar}>Delete Calendar</button>
-        </div>
+            {/* {calendar.comment !== "" && <h2>Comment: {calendar.comment}</h2>} */}
+            {calendar.status === "submitted" && <button className="owner-button green-btn" onClick={handleSuggestCalendar}>Suggest Calendar</button>}
+            
+            {suggested && (
+                    <>
+                        <h3>Suggested Timeslots:</h3>
+                        <ul>
+                            {suggestedTimeslots.map((timeslot) => (
+                                <li key={timeslot.id}>
+                                    <div className="owner-timeslot-details">
+                                        <span>Timeslot: {formatDateTime(timeslot.start_date_time)}, Duration: {timeslot.duration} minutes,</span>
+                                        <span> Comment: {timeslot.comment || 'None'},</span>
+                                        <span> Preference: {
+                                            { '1': 'Low', '2': 'Medium', '3': 'High' }[timeslot.preference] || 'Not Set'
+                                        },</span>
+                                        <span>
+                                            Total Preference : {[timeslot.total_preference] || 0}
+                                        </span>
+                                        {/* Since these are suggestions, you might not need edit/delete buttons here */}
+                                        <div className="owner-timeslot-controls">
+                                            <button onClick={() => handleFinalizeClick(timeslot)}>Finalize</button>
+                                        </div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                )}
+                {console.log(suggested + failMessage)}
+                {!suggested && (
+                <>
+                <div>
+                <span>{failMessage}</span>
+                </div>
+                </>
+                )}
+                <button className="owner-button btn-delete" onClick={handleDeleteCalendar}>Delete Calendar</button>
+            </div>
         </>
       );
       

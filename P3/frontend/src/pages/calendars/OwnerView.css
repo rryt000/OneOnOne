@@ -172,3 +172,11 @@ body {
 h1 {
     display:none;
 }
+
+.owner-container .green-btn {
+    background-color: #008000; 
+}
+
+.owner-container .green-btn:hover {
+    background-color: darken(#008000, 10%);
+}

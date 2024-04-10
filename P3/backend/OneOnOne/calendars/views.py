@@ -385,11 +385,17 @@ class TimeSlotVoteView(APIView):
         user = request.user
         if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists():
             return Response({"Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        
+        timeslot_id = request.data.get('timeslot')
+        timeslot = get_object_or_404(TimeSlot, id=timeslot_id)
+        timeslot_vote_exists = TimeSlotVote.objects.filter(timeslot=timeslot, contact=request.user).exists()
+        if timeslot_vote_exists:
+            return Response({"error": "Vote already exists for this timeslot."}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = TimeSlotVoteSerializer(data=request.data)
 
         if serializer.is_valid():
-            
+    
             serializer.save(calendar=calendar, contact=self.request.user)
 
             total_timeslots = TimeSlot.objects.filter(calendar=calendar).count()
@@ -411,8 +417,12 @@ class TimeSlotVoteView(APIView):
         if not CalendarContact.objects.filter(calendar=calendar, contact=user).exists():
             return Response({"Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
         
-        timeslot_vote = TimeSlotVote.objects.get(calendar=calendar, contact=self.request.user)
-        
+        timeslot_id = request.data.get('timeslot')
+        timeslot = get_object_or_404(TimeSlot, id=timeslot_id)
+        timeslot_vote = get_object_or_404(TimeSlotVote, timeslot=timeslot, contact=request.user)
+        timeslot_vote_exists = TimeSlotVote.objects.filter(timeslot=timeslot, contact=request.user).exists()
+        if not timeslot_vote_exists:
+            return Response({"error": "Vote does not already exist for this timeslot."}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = TimeSlotVoteSerializer(timeslot_vote, data=request.data)
 
@@ -488,7 +498,7 @@ class CalendarFinalize(APIView):
 
     
     def post(self, request, *args, **kwargs):
-        calendar_id = request.data.get('calendar_id')
+        calendar_id = self.kwargs['calendar_id']
         timeslot_id = request.data.get('timeslot_id')
 
         # Ensure calendar and timeslot exist and are related
@@ -558,7 +568,8 @@ class CalendarSuggest(APIView):
                 "start_date_time": ts.start_date_time,
                 "duration": ts.duration,
                 "comment": ts.comment,
-                "total_preference": next((item for item in valid_timeslots if item["timeslot"] == ts.id), {}).get('total_preference', 0)
+                "preference": ts.preference,
+                "total_preference": next((item for item in valid_timeslots if item["timeslot"] == ts.id), {}).get('total_preference', 0) + ts.preference
             } for ts in suggested_timeslots]
             
             message = "Suggested timeslots based on preferences." if len(suggested_timeslots) == 3 else "These are the only possible suggested timeslots."
