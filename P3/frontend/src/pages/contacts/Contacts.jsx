@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/AuthProvider';
 
 const ContactsPage = () => {
     const [contacts, setContacts] = useState([]);
+    const [requests, setRequests] = useState([]);
     const [username, setUsername] = useState('');
     const [message, setMessage] = useState('');
     const [isError, setIsError] = useState(false);
@@ -20,21 +21,39 @@ const ContactsPage = () => {
     useEffect(() => {
         const fetchContacts = async () => {
             try {
-                // Now the request uses the auth token from the Auth context
                 const response = await axios.get('http://127.0.0.1:8000/contacts/contact-lists/', {
                     headers: {
                         Authorization: `Bearer ${auth.token}`,
                     },
                 });
-                setContacts(response.data.contacts); // Assuming the data is the list of contacts
+                setContacts(response.data.contacts);
             } catch (error) {
                 console.error("Error fetching contacts:", error);
-                // Handle error here
             }
         };
 
         if (auth.token) { // Making sure there is a token before attempting to fetch contacts
             fetchContacts();
+        }
+
+        const fetchRequests = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8000/contacts/contact-requests/', {
+                    headers: {
+                        Authorization: `Bearer ${auth.token}`,
+                    },
+                });
+                // Adjust this according to the actual response structure
+                console.log(response.data);
+                setRequests(response.data);
+            } catch (error) {
+                console.error("Error fetching requests:", error);
+            }
+        };
+
+        if (auth.token) { 
+            fetchContacts();
+            fetchRequests();
         }
     }, [auth.token]);
 
@@ -93,6 +112,43 @@ const ContactsPage = () => {
             }
         }
     };
+
+    const acceptRequest = async (requestId) => {
+        try {
+            const response = await axios.put(
+                `http://127.0.0.1:8000/contacts/contact-requests/`,
+                { id: requestId, action: 'accept' },
+                { headers: { Authorization: `Bearer ${auth.token}` } }
+            );
+            console.log('Request accepted:', response.data);
+            const newContact = {
+                username: response.data.sender.username, 
+                first_name: response.data.sender.first_name,
+                last_name: response.data.sender.last_name,
+                email: response.data.sender.email,
+            };
+            setContacts(prevContacts => [...prevContacts, newContact]);
+            setRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
+            
+        } catch (error) {
+            console.error('Error accepting request:', error);
+        }
+    };
+
+    // Function to reject a contact request
+    const rejectRequest = async (requestId) => {
+        try {
+            const response = await axios.put(
+                `http://127.0.0.1:8000/contacts/contact-requests/`,
+                { id: requestId, action: 'decline' },
+                { headers: { Authorization: `Bearer ${auth.token}` } }
+            );
+            console.log('Request rejected:', response.data);
+            setRequests(prevRequests => prevRequests.filter(req => req.id !== requestId));
+        } catch (error) {
+            console.error('Error rejecting request:', error);
+        }
+    };
     
 
     return (
@@ -125,6 +181,34 @@ const ContactsPage = () => {
             </nav>
 
             <main className="container mt-4">
+                <h2 className="mb-4">Incoming Contact Requests</h2>
+                <div style={{ overflowX: 'auto' }}>
+                    <table className="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sender</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">First Name</th>
+                                <th scope="col">Last Name</th>
+                                <th scope="col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {requests.map((request, index) => (
+                                <tr key={request.id}>
+                                    <td>{request.sender_details.username}</td>
+                                    <td>{request.sender_details.email}</td>
+                                    <td>{request.sender_details.first_name}</td>
+                                    <td>{request.sender_details.last_name}</td>
+                                    <td>
+                                    <button className="btn btn-success btn-sm m-1" onClick={() => acceptRequest(request.id)}>Accept</button>
+                                        <button className="btn btn-danger btn-sm m-1" onClick={() => rejectRequest(request.id)}>Reject</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
                 <h2 className="mb-4">Manage Contacts</h2>
                 <div className="input-group flex-nowrap">
                     <span className="input-group-text" id="addon-wrapping">Add a Contact</span>

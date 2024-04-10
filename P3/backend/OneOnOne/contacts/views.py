@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import ContactList, ContactRequest
-from .serializers import ContactListSerializer, ContactRequestSerializer
+from .serializers import ContactListSerializer, ContactRequestSerializer, UserDetailSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError, PermissionDenied
 
@@ -93,33 +93,38 @@ class ContactRequestAPIView(APIView):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def put(self, request):
-        """
-        Accept or Decline an existing contact request.
-        """
+    def put(self, request, *args, **kwargs):
         contact_request_id = request.data.get('id')  # Get the ID from the request body
+        action = request.data.get('action')  # 'accept' or 'decline'
+
         try:
             contact_request = ContactRequest.objects.get(pk=contact_request_id)
         except ContactRequest.DoesNotExist:
-            Response({'error': 'Contact request does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Contact request does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check if the authenticated user is the receiver of the contact request
         if request.user != contact_request.receiver:
             raise PermissionDenied("You are not authorized to perform this action.")
 
         if not contact_request.is_active:
-            return Response({'error': 'Contact request inactive;'}, status=status.HTTP_400_BAD_REQUEST)
-
-        action = request.data.get('action')  # 'accept' or 'decline'
+            return Response({'error': 'Contact request inactive'}, status=status.HTTP_400_BAD_REQUEST)
 
         if action == 'accept':
+            # Assuming accept method updates the contact request to reflect acceptance
             contact_request.accept()
+
+            # Assuming the sender is an instance of the user model and you want to return user details
+            sender = contact_request.sender
+            sender_details = UserDetailSerializer(sender).data  # Serialize sender details
+
+            return Response({'message': 'Contact request accepted', 'sender': sender_details}, status=status.HTTP_200_OK)
         elif action == 'decline':
+            # Assuming decline method updates the contact request to reflect rejection
             contact_request.decline()
+
+            return Response({'message': 'Contact request declined'}, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({'message':'Action Succssful.'}, status=status.HTTP_204_NO_CONTENT)
 
 
     # def delete(self, request, pk):
