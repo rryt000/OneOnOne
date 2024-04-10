@@ -6,20 +6,20 @@ import axios from 'axios';
  
  
 const Dashboard = () => {
- 
+
     const [notifications, setNotifications] = useState([]);
- 
+
     const auth = useAuth();
     const { token } = useAuth();
     const navigate = useNavigate();
- 
- 
+
+
     console.log(auth.user);
- 
+
     const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
- 
+
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
- 
+
     const fetchNotifications = async () => {
         try {
             const response = await axios.get('http://localhost:8000/calendars/notifications/', {
@@ -30,27 +30,27 @@ const Dashboard = () => {
             console.error('Error fetching notifications:', error);
         }
     };
- 
+
     useEffect(() => {
         fetchNotifications();
     }, [token]);
- 
+
     const handleNotificationClick = async (notification) => {
         try {
             await axios.delete(`http://localhost:8000/calendars/notifications/${notification.id}`, {
             headers: { Authorization: `Bearer ${token}` }
             });
- 
+
             await fetchNotifications();
             console.log(notification.calendar)
             navigate(`/calendars/${notification.calendar}`);
- 
+
         } catch (error) {
             console.error('Error deleting notification:', error);
         }
     };
- 
- 
+
+
   return (
     <>
    

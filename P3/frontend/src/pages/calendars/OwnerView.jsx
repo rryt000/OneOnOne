@@ -126,8 +126,6 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                 {   headers: { Authorization: `Bearer ${token}` } });
             // navigate("/calendars/");
 			setIsFinalized(true);
-            notifyFinalization();
-
         } catch (error) {
             console.error('Error finalizing calendar:', error)
         }
@@ -286,25 +284,6 @@ const OwnerView = ({ calendar, token, isOwner }) => {
 		const mailtoLink = `mailto:${concatenatedContacts}?subject=${subject}&body=${body}`;
 		window.location.href = mailtoLink;
 	}
-
-	// const notifyFinalization = async () => {
-	// 	let concatenatedContacts = "" 
-	// 	for (let i = 0; i < contacts.length; i++) {
-	// 		concatenatedContacts += contacts[i].email;
-	// 		if (i < contacts.length - 1) {
-	// 		  concatenatedContacts += ",";
-	// 		}
-	// 	}
-	// 	// `http://localhost:3000/calendars/${calendar.id}`
-	// 	const link = `http://localhost:3000/calendars/${calendar.id}`;
-	// 	const subject = encodeURIComponent(`Notification: Calendar ${calendar.name} has been finalized.`);
-	// 	const body = encodeURIComponent(`Click this link, for sure absolutely safe, will take you to the calendar for quick access:\n\n${link}\n\nBest,\n${auth.user.username}`);
-		
-	// 	// Directly navigating to the mailto link including the concatenated contacts, subject, and body
-	// 	const mailtoLink = `mailto:${concatenatedContacts}?subject=${subject}&body=${body}`;
-	// 	window.location.href = mailtoLink;
-	// }
-
 	
     const handleSaveEdit = async () => {
         const formattedTimeslot = {
@@ -344,40 +323,20 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         }
     };
 
-    const notifyFinalization = async () => {
-        contacts.forEach(async (contact) => {
-            try {
-                await axios.post(`${backendUrl}/calendars/notifications/`, 
-                    {
-                        contact_id: contact.id,
-                        calendar_id: calendar.id,
-                        txt: `Calendar - ${calendar.name} was finalized`
-                    },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-            } catch (error) {
-                console.error(`Error sending finalization notification to ${contact.username}:`, error);
-            }
-        });
-
-    alert("Notifications sent regarding calendar finalization.");
-};
-
-
     const sendPreferenceReminder = async () => {
         const unsubmittedContacts = contacts.filter(contact => !contact.has_submitted);
         for (const contact of unsubmittedContacts) {
             try {
                 await axios.post(`${backendUrl}/calendars/notifications/`, 
                     {
-                        contact_id: contact.id,
-                        calendar_id: calendar.id, 
+                        user: contact.contact,
+                        calendar: calendar.id,
                         txt: `Reminder: Calendar - ${calendar.name} requires your preference input.`
                     },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             } catch (error) {
-                console.error(`Error sending reminder to contact ${contact.id}:`, error);
+                console.error(`Error sending reminder to contact ${contact.contact}:`, error);
             }
         }
         alert(`${unsubmittedContacts.length} reminder(s) sent.`);
@@ -448,7 +407,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
 			</button>}
 
             {calendar.status === "created" && <button 
-				className="owner-button blue-btn" 
+				className="owner-button green-btn" 
 				onClick={sendPreferenceReminder}
 				disabled={contacts.filter(contact => !contact.has_submitted).length === 0}>
 				Send notification to Contact

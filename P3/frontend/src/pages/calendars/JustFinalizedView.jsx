@@ -10,6 +10,7 @@ const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
     const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
     const auth = useAuth();
+    const backendUrl = 'http://localhost:8000';
 
 
 
@@ -30,6 +31,25 @@ const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
 		const mailtoLink = `mailto:${concatenatedContacts}?subject=${subject}&body=${body}`;
 		window.location.href = mailtoLink;
 	}
+
+    const notifyFinalization2 = async () => {
+        contacts.forEach(async (contact) => {
+            try {
+                await axios.post(`${backendUrl}/calendars/notifications/`, 
+                    {
+                        user: contact.contact,
+                        calendar: calendar.id,
+                        txt: `Calendar - ${calendar.name} was just finalized.`
+                    },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            } catch (error) {
+                console.error(`Error sending finalization notification to ${contact.username}:`, error);
+            }
+        });
+
+    	alert("Notifications sent regarding calendar finalization.");
+	};
 
     return (
         <>
@@ -63,7 +83,8 @@ const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
         <div className="owner-container">
             <h2 className="green-text">Congratulations! Your Calendar has been finalized. Would you like to notify the members?</h2>
             <div className="center-btn big-btn">
-            <button className="owner-button" onClick={notifyFinalization}>Notify</button>
+            <button className="owner-button" onClick={notifyFinalization2}>Notify members on Website</button>
+            <button className="owner-button" onClick={notifyFinalization}>Notify members via Email</button>
             </div>
         </div>
 
