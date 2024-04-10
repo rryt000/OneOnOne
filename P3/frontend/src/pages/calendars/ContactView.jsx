@@ -31,7 +31,6 @@ const ContactView = ({ calendar, token, isOwner }) => {
 
     if (!calendar) return <p>Loading...</p>;
 
-
     const formatDateTime = (dateString) => {
         const date = new Date(dateString);
         const year = date.getFullYear();
@@ -157,7 +156,7 @@ const ContactView = ({ calendar, token, isOwner }) => {
         <>
         <nav className="navbar navbar-expand-lg">
         <div className="container">
-            <Link className="navbar-brand" to="/dashboard/">1on1</Link>
+            <Link className="navbar-brand" to="/">1on1</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
                     aria-label="Toggle navigation" onClick={handleNavCollapse}>
@@ -184,7 +183,7 @@ const ContactView = ({ calendar, token, isOwner }) => {
         <div className="owner-container">
             <h2>Calendar: {calendar.name}</h2>
             {calendar.comment && <h5>Comment: {calendar.comment}</h5>}
-
+            <h3>Owner: {calendar.owner_username}</h3>
             {/* List of Contacts */}
             <h3>Contacts List:</h3>
             <ul>

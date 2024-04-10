@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import { useAuth } from "../../hooks/AuthProvider";
@@ -8,6 +8,7 @@ import axios from 'axios';
 const Dashboard = () => {
 
     const [notifications, setNotifications] = useState([]);
+    const [requests, setRequests] = useState([]);
 
     const auth = useAuth();
     const { token } = useAuth();
@@ -20,20 +21,35 @@ const Dashboard = () => {
 
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
-    const fetchNotifications = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/calendars/notifications/', {
-            headers: { Authorization: `Bearer ${token}` }
-            });
-            setNotifications(response.data);
-        } catch (error) {
-            console.error('Error fetching notifications:', error);
-        }
-    };
+    const fetchNotifications = useCallback(async () => {
+      try {
+          const response = await axios.get('http://localhost:8000/calendars/notifications/', {
+          headers: { Authorization: `Bearer ${token}` }
+          });
+          setNotifications(response.data);
+
+      } catch (error) {
+          console.error('Error fetching notifications:', error);
+      }
+  }, [token]);
+
+  const fetchRequests = useCallback(async () => {
+    try {
+        const response = await axios.get('http://127.0.0.1:8000/contacts/contact-requests/', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        setRequests(response.data);
+    } catch (error) {
+        console.error("Error fetching requests:", error);
+    }
+}, [token]);
 
     useEffect(() => {
         fetchNotifications();
-    }, [token]);
+        fetchRequests();
+    }, [token, fetchNotifications, fetchRequests]);
 
     const handleNotificationClick = async (notification) => {
         try {
@@ -56,7 +72,7 @@ const Dashboard = () => {
    
     <nav className="navbar navbar-expand-lg">
         <div className="container">
-            <span className="navbar-brand" to="/dashboard/">1on1</span>
+            <Link className="navbar-brand" to="/">1on1</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
                     aria-label="Toggle navigation" onClick={handleNavCollapse}>
@@ -88,8 +104,8 @@ const Dashboard = () => {
           <div className="notifications">
             <h3>Notifications</h3>
             <div className="list-group">
-              {notifications.length === 0 ? (
-                <p>No new notifications</p>
+              {notifications.length + requests.length === 0 ? (
+                <td className="list-group-item list-group-item-action"> No new notifications </td>
               ) : (
                 notifications.map(notification => (
                   <div
@@ -100,6 +116,15 @@ const Dashboard = () => {
                   >
                     {notification.txt}
                   </div>
+                )),
+                requests.map((request, index) => (
+                  <Link                     
+                  className="list-group-item list-group-item-action"
+                  key={request.id}
+                  to='/contacts'
+                  >
+                      <td>New contact request from {request.sender_details.first_name} {request.sender_details.last_name}.</td>
+                  </Link>
                 ))
               )}
             </div>

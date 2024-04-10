@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css'; // Make sure Bootstrap CSS is imported
 import './Accounts.css'; // Adjust the path to your CSS file as necessary
@@ -10,6 +10,29 @@ const AccountPage = () => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: '', content: '' }); // New state for messages
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const token = auth.token;
+        const response = await axios.get('http://127.0.0.1:8000/accounts/', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const profileData = response.data;
+        // Omit the password from the profile data before setting the form data
+        const { password, ...rest } = profileData;
+        setFormData(rest);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+        // Optionally, set an error message
+        setMessage({ type: 'error', content: 'Failed to load profile data. Please refresh the page.' });
+      }
+    };
+
+    fetchProfileData();
+  }, [auth.token]); 
 
   const handleChange = (event) => {
     const { id, value } = event.target;
@@ -113,13 +136,13 @@ const AccountPage = () => {
                       {/* Username section */}
                       <div className="form-group mt-2">
                         <label htmlFor="username">Username</label>
-                        <input type="text" className="form-control" id="username" placeholder="new_username" value={formData.username} onChange={handleChange} />
+                        <input type="text" className="form-control" id="username" placeholder="New Username" value={formData.username} onChange={handleChange} />
                         {errors.username && <div className="text-danger">{errors.username}</div>}
                       </div>
                       {/* Email section */}
                       <div className="form-group mt-2">
                         <label htmlFor="email">Email</label>
-                        <input type="email" className="form-control" id="email" placeholder="newemail@example.com" value={formData.email} onChange={handleChange} />
+                        <input type="email" className="form-control" id="email" placeholder="New Email" value={formData.email} onChange={handleChange} />
                         {errors.email && <div className="text-danger">{errors.email}</div>}
                       </div>
                       {/* Password section */}

@@ -45,32 +45,54 @@ const LoginPage = () => {
       if (errorMessage) setErrorMessage('');
     };
   
+
+    const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+
+    const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+    
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
-        <div className="card" style={{ minWidth: "300px" }}>
-          <div className="card-body">
-            <h3 className="card-title text-center text-secondary">Welcome Back!</h3>
-            {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label className="text-secondary mb-1" htmlFor="username">Username</label>
-                <input type="text" className="form-control" id="username" name="username" placeholder="Username" value={input.username} onChange={handleInput} required />
+      <>
+        <nav className="navbar navbar-expand-lg">
+          <div className="container">
+              <Link className="navbar-brand" to="/">1on1</Link>
+              <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                      data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
+                      aria-label="Toggle navigation" onClick={handleNavCollapse}>
+                  <span className="navbar-toggler-icon"></span>
+              </button>
+              <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse`} id="navbarNav">
+                  <ul className="navbar-nav ms-auto">
+                      <li className="nav-item"><Link className="nav-link" to="/Login/">Login</Link></li>
+                      <li className="nav-item"><Link className="nav-link" to="/Register/">Register</Link></li>
+                  </ul>
               </div>
-              <div className="form-group mt-2">
-                <label className="text-secondary mb-1" htmlFor="passwordInput">Password</label>
-                <input type="password" className="form-control" id="passwordInput" name="password" placeholder="Enter Password" value={input.password} onChange={handleInput} required />
-              </div>
-              <div className="d-flex justify-content-center">
-                <Link to="/forgot-password" className="text-primary">Forgot your password?</Link>
-              </div>
-              <button type="submit" className="btn btn-primary w-100 mt-3">Log In</button>
-              <div className="d-flex justify-content-center align-items-center mt-2">
-                <p className="text-secondary">Need an account?</p>&nbsp;<Link to="/register" className="text-primary">Register</Link>
-              </div>
-            </form>
           </div>
+        </nav>
+        <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+          <div className="card" style={{ minWidth: "300px" }}>
+              <div className="card-body">
+                <h3 className="card-title text-center text-secondary">Welcome Back!</h3>
+                {errorMessage && <div className="alert alert-danger" role="alert">{errorMessage}</div>}
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                    <label className="text-secondary mb-1" htmlFor="username">Username</label>
+                    <input type="text" className="form-control" id="username" name="username" placeholder="Username" value={input.username} onChange={handleInput} required />
+                  </div>
+                  <div className="form-group mt-2">
+                    <label className="text-secondary mb-1" htmlFor="passwordInput">Password</label>
+                    <input type="password" className="form-control" id="passwordInput" name="password" placeholder="Enter Password" value={input.password} onChange={handleInput} required />
+                  </div>
+                  <button type="submit" className="btn btn-primary w-100 mt-3">Log In</button>
+                  <div className="d-flex justify-content-center align-items-center mt-2">
+                    <p className="text-secondary">Need an account?</p>&nbsp;<Link to="/register" className="text-primary">Register</Link>
+                  </div>
+                </form>
+              </div>
+            </div>
         </div>
-      </div>
+      </>
+
+
     );
 };
   

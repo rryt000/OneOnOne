@@ -43,8 +43,6 @@ const ContactsPage = () => {
                         Authorization: `Bearer ${auth.token}`,
                     },
                 });
-                // Adjust this according to the actual response structure
-                console.log(response.data);
                 setRequests(response.data);
             } catch (error) {
                 console.error("Error fetching requests:", error);
@@ -155,7 +153,7 @@ const ContactsPage = () => {
         <>
             <nav className="navbar navbar-expand-lg">
                 <div className="container">
-                    <Link className="navbar-brand" to="/dashboard/">1on1</Link>
+                    <Link className="navbar-brand" to="/">1on1</Link>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                             data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
                             aria-label="Toggle navigation" onClick={handleNavCollapse}>
@@ -183,6 +181,7 @@ const ContactsPage = () => {
             <main className="container mt-4">
                 <h2 className="mb-4">Incoming Contact Requests</h2>
                 <div style={{ overflowX: 'auto' }}>
+                {requests.length > 0 ? (
                     <table className="table">
                         <thead>
                             <tr>
@@ -201,13 +200,16 @@ const ContactsPage = () => {
                                     <td>{request.sender_details.first_name}</td>
                                     <td>{request.sender_details.last_name}</td>
                                     <td>
-                                    <button className="btn btn-success btn-sm m-1" onClick={() => acceptRequest(request.id)}>Accept</button>
+                                        <button className="btn btn-success btn-sm m-1" onClick={() => acceptRequest(request.id)}>Accept</button>
                                         <button className="btn btn-danger btn-sm m-1" onClick={() => rejectRequest(request.id)}>Reject</button>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                ) : (
+                    <p>No new contact requests</p>
+                )}
                 </div>
                 <h2 className="mb-4">Manage Contacts</h2>
                 <div className="input-group flex-nowrap">
@@ -225,6 +227,7 @@ const ContactsPage = () => {
                 </div>
                 {message && <div className={`alert ${isError ? 'alert-danger' : 'alert-success'}`}>{message}</div>}
                 <div style={{ overflowX: 'auto' }}>
+                {contacts.length > 0 ? (
                     <table className="table">
                         <thead>
                             <tr>
@@ -249,6 +252,9 @@ const ContactsPage = () => {
                             ))}
                         </tbody>
                     </table>
+                ) : (
+                    <h3>No contacts</h3>
+                )}
                 </div>
             </main>
 

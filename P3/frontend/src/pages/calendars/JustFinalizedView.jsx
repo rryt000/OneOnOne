@@ -55,7 +55,7 @@ const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
         <>
         <nav className="navbar navbar-expand-lg">
         <div className="container">
-            <Link className="navbar-brand" to="/dashboard/">1on1</Link>
+            <Link className="navbar-brand" to="/">1on1</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
                     aria-label="Toggle navigation" onClick={handleNavCollapse}>

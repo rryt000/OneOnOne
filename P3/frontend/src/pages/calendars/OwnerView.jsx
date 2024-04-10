@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './OwnerView.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
@@ -352,7 +353,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         ) : (<>
         <nav className="navbar navbar-expand-lg">
         <div className="container">
-            <Link className="navbar-brand" to="/dashboard/">1on1</Link>
+            <Link className="navbar-brand" to="/">1on1</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
                     aria-label="Toggle navigation" onClick={handleNavCollapse}>
@@ -416,47 +417,69 @@ const OwnerView = ({ calendar, token, isOwner }) => {
             </li>
             </ul>
             <ul>
-            {contacts.map(contact => (
-              <li key={contact.id} className="owner-contact-item">
-                {contact.username} - {contact.has_submitted ? 'Submitted' : 'Not Submitted'}
-                <button className="owner-button btn-delete" onClick={() => handleDeleteContact(contact.contact)}>Delete</button>
-              </li>
-            ))}
-          </ul>
+            {contacts.length > 0 ? (
+                contacts.map(contact => (
+                <li key={contact.id} className="owner-contact-item">
+                    {contact.username} - {contact.has_submitted ? 'Submitted' : 'Not Submitted'}
+                    <button className="owner-button btn-delete" onClick={() => handleDeleteContact(contact.contact)}>Delete</button>
+                </li>
+                ))
+            ) : (
+                <li>No contacts added</li>
+            )}
+            </ul>
+
       
           {/* Timeslot management section */}
           <div className="owner-timeslot-form">
-            <input
-              className="owner-input"
-              type="datetime-local"
-              value={newTimeslot.startDateTime}
-              onChange={(e) => setNewTimeslot({ ...newTimeslot, startDateTime: e.target.value })}
-              placeholder="Start Date and Time"
-            />
-            <input
-              className="owner-input"
-              type="number"
-              value={newTimeslot.duration}
-              onChange={(e) => setNewTimeslot({ ...newTimeslot, duration: e.target.value })}
-              placeholder="Duration (minutes)"
-            />
+            <div className="input-group">
+                <label for="start-date" className="form-label">Start Date and Time</label>
+                <input
+                className="owner-input"
+                type="datetime-local"
+                value={newTimeslot.startDateTime}
+                onChange={(e) => setNewTimeslot({ ...newTimeslot, startDateTime: e.target.value })}
+                placeholder="Start Date and Time"
+                id="start-date"
+                />
+            </div>
+            <div className="input-group">
+                <label for="duration" className="form-label">Duration (minutes)</label>
+                <input
+                className="owner-input"
+                type="number"
+                value={newTimeslot.duration}
+                onChange={(e) => setNewTimeslot({ ...newTimeslot, duration: e.target.value })}
+                placeholder="Duration (minutes)"
+                id="duration"
+                />
+            </div>
+            <div className="input-group">
+                <label for="description" className="form-label">Description</label>
             <input
               className="owner-input"
               type="text"
               value={newTimeslot.comment}
               onChange={(e) => setNewTimeslot({ ...newTimeslot, comment: e.target.value })}
-              placeholder="Comment (Optional)"
+              placeholder="Description (Optional)"
+              id = "description"
             />
-            <select
-              className="owner-select"
-              value={newTimeslot.preference}
-              onChange={(e) => setNewTimeslot({ ...newTimeslot, preference: e.target.value })}
-            >
-              <option value="1">Low Preference</option>
-              <option value="2">Medium Preference</option>
-              <option value="3">High Preference</option>
-            </select>
-            <button className="owner-button" onClick={handleAddTimeslot}>Add Timeslot</button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <label for="preference" className="form-label">Preference</label>
+                <select
+                className="owner-select"
+                value={newTimeslot.preference}
+                onChange={(e) => setNewTimeslot({ ...newTimeslot, preference: e.target.value })}
+                id = "preference"
+                >
+                <option value="1">Low Preference</option>
+                <option value="2">Medium Preference</option>
+                <option value="3">High Preference</option>
+                </select>
+            </div>
+
+            <button className="owner-button" style={{gridColumn: 'span 2'}} onClick={handleAddTimeslot}>Add Timeslot</button>
           </div>
       
           <h3>Timeslots:</h3>
@@ -574,4 +597,4 @@ const OwnerView = ({ calendar, token, isOwner }) => {
 
 export default OwnerView;
 
-// <a href="mailto:rubin.rastogi@mail.utoronto.ca,inan.sanon@mail.utoronto.ca?subject=More%20info...&body=I%20was%20on%20your%20website%20and%20would%20like%20to%20learn%20more%20about:%0D%0A%0D%0A" class="email_address">rubin.rastogi@mail.utoronto.ca</a>
+// <a href="mailto:rubin.rastogi@mail.utoronto.ca,inan.sanon@mail.utoronto.ca?subject=More%20info...&body=I%20was%20on%20your%20website%20and%20would%20like%20to%20learn%20more%20about:%0D%0A%0D%0A" className="email_address">rubin.rastogi@mail.utoronto.ca</a>

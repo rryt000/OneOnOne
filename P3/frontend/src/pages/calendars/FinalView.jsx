@@ -15,17 +15,24 @@ const FinalView = ({ calendar, token, isOwner }) => {
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
     const auth = useAuth();
 
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     const formatDateTime = (dateString) => {
         const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
+        return date.toLocaleString('en-US', { timeZone: userTimeZone });
     };
+
+    // const formatDateTime = (dateString) => {
+    //     const date = new Date(dateString);
+    //     const year = date.getFullYear();
+    //     const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    //     const day = date.getDate().toString().padStart(2, '0');
+    //     const hours = date.getHours().toString().padStart(2, '0');
+    //     const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    //     return `${year}-${month}-${day} ${hours}:${minutes}`;
+    // };
+    // This is the Old formatDateTime, Here just incase bugs arise from the above implementation
 
     const fetchContacts = async () => {
         try {
@@ -65,12 +72,38 @@ const FinalView = ({ calendar, token, isOwner }) => {
         fetchContacts();
         fetchFinalizedTimeslot();
     }, [calendar.id, token]);
-    
+
+const createGoogleCalendarLink = (timeslot) => {
+        const start = new Date(timeslot.start_date_time).toISOString();
+        const end = new Date(new Date(timeslot.start_date_time).getTime() + timeslot.duration * 60000).toISOString();
+        return `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(calendar.name)}&dates=${start.replace(/-|:|\.\d{3}/g, '')}/${end.replace(/-|:|\.\d{3}/g, '')}&details=${encodeURIComponent(calendar.comment || '')}&ctz=${userTimeZone}`;
+    };
+
+    const createOutlookCalendarLink = (timeslot) => {
+        const start = new Date(timeslot.start_date_time).toISOString();
+        const end = new Date(new Date(timeslot.start_date_time).getTime() + timeslot.duration * 60000).toISOString();
+        return `https://outlook.office.com/calendar/0/deeplink/compose?path=/calendar/action/compose&rru=addevent&startdt=${encodeURIComponent(start)}&enddt=${encodeURIComponent(end)}&subject=${encodeURIComponent(calendar.name)}&body=${encodeURIComponent(calendar.comment || '')}`;
+    };
+
+    const onAddToGoogleCalendar = () => {
+        if (finalizedTimeslot) {
+            const googleCalendarUrl = createGoogleCalendarLink(finalizedTimeslot);
+            window.open(googleCalendarUrl, '_blank');
+        }
+    };
+
+    const onAddToOutlookCalendar = () => {
+        if (finalizedTimeslot) {
+            const outlookCalendarUrl = createOutlookCalendarLink(finalizedTimeslot);
+            window.open(outlookCalendarUrl, '_blank');
+        }
+    };
+      
     return (
         <>
         <nav className="navbar navbar-expand-lg">
         <div className="container">
-            <Link className="navbar-brand" to="/dashboard/">1on1</Link>
+            <Link className="navbar-brand" to="/">1on1</Link>
             <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
                     aria-label="Toggle navigation" onClick={handleNavCollapse}>
@@ -95,7 +128,7 @@ const FinalView = ({ calendar, token, isOwner }) => {
         </div>
         </nav>
         <div className="owner-container">
-            <h2 className="green"> Finalized Calendar: {calendar.name}</h2>
+            <h2> Finalized Calendar: {calendar.name}</h2>
             {calendar.comment && <h5>Comment: {calendar.comment}</h5>}
 
             <h3>Contacts :</h3>
@@ -119,7 +152,12 @@ const FinalView = ({ calendar, token, isOwner }) => {
                 </ul>
                 </>
             )}
-
+            {finalizedTimeslot && (
+                <>
+                    <button onClick={onAddToGoogleCalendar} className="owner-button btn">Add to Google Calendar</button>
+                    <button onClick={onAddToOutlookCalendar} className="owner-button btn">Add to Outlook Calendar</button>
+                </>
+            )}
             {isOwner && <button className="owner-button btn-delete" onClick={handleDeleteCalendar}>Delete Calendar</button>}
         </div>
         <footer className="footer text-center align-items-center">

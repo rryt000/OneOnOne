@@ -14,7 +14,7 @@ const HomePage = () => {
     <>
       <header className="hero-section text-center">
         <div className="container hero-text">
-          <h1>Effortless <span>1on1</span> Scheduling: Your Key to Streamlined Meetings</h1>
+          <h1 style={{display: 'block'}}>Effortless <span>1on1</span> Scheduling: Your Key to Streamlined Meetings</h1>
           <p className="lead">Say goodbye to the hassle of coordinating schedules. With our intuitive platform, effortlessly arrange 1-on-1 meetings with just a few clicks. Prioritize what matters most – meaningful connections – while we handle the logistics for you.</p>
         </div>
         <section className="call-to-action text-center my-4">

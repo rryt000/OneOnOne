@@ -88,10 +88,32 @@ const RegisterPage = () => {
     }
   };
 
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+
+  const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+
+
   return (
-    <main className="d-flex justify-content-center align-items-center vh-100">
+    <>        
+      <nav className="navbar navbar-expand-lg">
+        <div className="container">
+          <Link className="navbar-brand" to="/">1on1</Link>
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                  data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded={!isNavCollapsed} 
+                  aria-label="Toggle navigation" onClick={handleNavCollapse}>
+              <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className={`${isNavCollapsed ? 'collapse' : ''} navbar-collapse`} id="navbarNav">
+              <ul className="navbar-nav ms-auto">
+                  <li className="nav-item"><Link className="nav-link" to="/Login/">Login</Link></li>
+                  <li className="nav-item"><Link className="nav-link" to="/Register/">Register</Link></li>
+              </ul>
+          </div>
+        </div>
+    </nav>
+    <main className="d-flex justify-content-center align-items-center">
       <div className="container">
-        <div className="row justify-content-center">
+        <div className="row justify-content-center" style={{margin: 'auto'}}>
           <div className="card">
             <div className="card-body">
               <h3 className="card-title text-center">Welcome Aboard!</h3>
@@ -136,6 +158,11 @@ const RegisterPage = () => {
         </div>
       </div>
     </main>
+    <footer className="footer text-center py-3 container-fluid">
+        <p>2024 1on1 Meetings. All rights reserved.</p>
+      </footer>
+  </>
+
   );
 };
 
