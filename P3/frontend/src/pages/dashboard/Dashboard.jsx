@@ -7,46 +7,48 @@ import axios from 'axios';
 
 const Dashboard = () => {
 
-  const [notifications, setNotifications] = useState([]);
+    const [notifications, setNotifications] = useState([]);
 
-  const auth = useAuth();
-  const { token } = useAuth();
-  const navigate = useNavigate();
+    const auth = useAuth();
+    const { token } = useAuth();
+    const navigate = useNavigate();
 
 
-  console.log(auth.user);
+    console.log(auth.user);
 
-  const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
+    const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
 
-  const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
+    const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
-  useEffect(() => {
     const fetchNotifications = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/calendars/notifications/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setNotifications(response.data);
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
-      }
+        try {
+            const response = await axios.get('http://localhost:8000/calendars/notifications/', {
+            headers: { Authorization: `Bearer ${token}` }
+            });
+            setNotifications(response.data);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+        }
     };
 
-    fetchNotifications();
-  }, [token]);
+    useEffect(() => {
+        fetchNotifications();
+    }, [token]);
 
-  const handleNotificationClick = async (notificationId) => {
-    try {
-      await axios.delete(`http://localhost:8000/notifications/${notificationId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+    const handleNotificationClick = async (notification) => {
+        try {
+            await axios.delete(`http://localhost:8000/calendars/notifications/${notification.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+            });
 
-      setNotifications(currentNotifications =>
-        currentNotifications.filter(n => n.id !== notificationId));
-    } catch (error) {
-      console.error('Error deleting notification:', error);
-    }
-  };
+            await fetchNotifications();
+            console.log(notification.calendar)
+            navigate(`/calendars/${notification.calendar}`);
+
+        } catch (error) {
+            console.error('Error deleting notification:', error);
+        }
+    };
 
 
   return (
@@ -90,14 +92,14 @@ const Dashboard = () => {
                 <p>No new notifications</p>
               ) : (
                 notifications.map(notification => (
-                  <Link
-                    to={`http://localhost:8000//calendars/${notification.calendarId}`}
+                  <div
+                    // to={`http://localhost:8000/calendars/${notification.calendar.id}`}
                     className="list-group-item list-group-item-action"
                     key={notification.id}
-                    onClick={() => handleNotificationClick(notification.id)}
+                    onClick={() => handleNotificationClick(notification)}
                   >
                     {notification.txt}
-                  </Link>
+                  </div>
                 ))
               )}
             </div>
