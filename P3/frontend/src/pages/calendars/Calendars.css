@@ -31,9 +31,9 @@ header {
     width:100vh;
 }
  
-main {
+/* main {
     flex: 1;
-}
+} */
  
 .navbar {
     background-color: var(--tertiary);
@@ -97,12 +97,12 @@ h2 {
     background-color: var(--action);
 }
  
-footer {
-    position: absolute; /* Changed to absolute */
-    bottom: 0; /* Align to bottom */
-    width: 100%; /* Ensure full width */
+/* footer {
+    position: absolute; 
+    bottom: 0; 
+    width: 100%; 
     background-color: var(--tertiary);
-}
+} */
  
  
 .list-group-item a {
@@ -114,44 +114,80 @@ footer {
     color: rgb(173, 173, 173);        
     text-decoration: none; 
 }
-
-
+ 
+ 
 /* Make the navbar stand out */
 .navbar {
     background-color: var(--tertiary); /* Adjusted color to make it stand out */
     border-bottom: 2px solid var(--action); /* Optional: adds a border to distinguish navbar */
 }
-
+ 
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
-  
-  .calendar-form input,
-  .calendar-form button {
-    width: 100%; 
-    padding: 8px;
-    margin-bottom: 10px; 
-  }
-  
-  .calendar-form button {
-    background-color: var(--action);
-    color: var(--secondary);
-    border: none;
-    cursor: pointer;
-  }
-  
-  .add-calendar-form {
-    width: 100%; 
+ 
+.calendar-form input,
+.calendar-form button {
+width: 100%; 
+padding: 8px;
+margin-bottom: 10px; 
+}
+ 
+.calendar-form button {
+background-color: var(--action);
+color: var(--secondary);
+border: none;
+cursor: pointer;
+}
+ 
+.add-calendar-form {
+width: 100%; 
+display: flex;
+justify-content: center; 
+}
+ 
+.calendar-form {
+width: 32%; 
+margin: auto; 
+display: flex;
+flex-direction: column;
+align-items: center; 
+gap: 10px;
+}
+ 
+body {
     display: flex;
-    justify-content: center; 
-  }
-  
-  .calendar-form {
-    width: 32%; 
-    margin: auto; 
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    gap: 10px;
-  }
-  
+    flex-direction: column; /* maintains the document flow */
+    min-height: 100vh; /* full viewport height */
+    margin: 0; /* reset any default margin */
+    position: relative;
+    padding-bottom:3rem;
+    box-sizing: inherit;
+}
+ 
+main {
+    flex: 1; /* consumes all available space */
+}
+ 
+html {
+    height: 100%;
+    box-sizing: border-box;
+}
+ 
+footer {
+    background-color: var(--tertiary);
+    height: 3rem; /* your desired height */
+    /* No need for 'position: absolute;' */
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: 0;
+}
+ 
+.gold {
+    color: #A98A22;
+}
+ 
+.green {
+    color: skyblue !important;
+}
