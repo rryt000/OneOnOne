@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 
 const OwnerView = ({ calendar, token, isOwner }) => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
     const [editingTimeslotId, setEditingTimeslotId] = useState(null);
     const [editingTimeslot, setEditingTimeslot] = useState({});
@@ -50,15 +52,38 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         }
     };
 
+    const [visibleVotesTimeslotId, setVisibleVotesTimeslotId] = useState(null);
+
+    const toggleVotesDisplay = (timeslotId) => {
+        if (visibleVotesTimeslotId === timeslotId) {
+            setVisibleVotesTimeslotId(null);
+        } else {
+            setVisibleVotesTimeslotId(timeslotId);
+        }
+    };
+
+
     const fetchTimeslots = async () => {
         try {
-            const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslots/`,
-                { headers: { Authorization: `Bearer ${token}` } });
-            setTimeslots(response.data);
+            // Fetching the timeslots
+            const timeslotsResponse = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslots/`, { headers: { Authorization: `Bearer ${token}` } });
+            
+            // Fetching the votes for each timeslot
+            const votesResponse = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslot-votes/`, { headers: { Authorization: `Bearer ${token}` } });
+    
+            // Mapping votes to their respective timeslots
+            const timeslotsWithVotes = timeslotsResponse.data.map(timeslot => {
+                const votesForTimeslot = votesResponse.data.find(voteEntry => voteEntry.timeslot_id === timeslot.id)?.votes || [];
+                return { ...timeslot, votes: votesForTimeslot };
+            });
+    
+            // Setting the state with timeslots and their corresponding votes
+            setTimeslots(timeslotsWithVotes);
         } catch (error) {
             console.error('Error fetching timeslots:', error);
         }
     };
+    
 
     const fetchPossibleContacts = async () => {
         try {
@@ -410,8 +435,18 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                                 <div className="owner-timeslot-controls">
                                     <button onClick={() => handleEditClick(timeslot)}>Edit</button>
                                     <button className="owner-button btn-delete" onClick={() => handleDeleteTimeslot(timeslot.id)}>Delete</button>
+                                    <label htmlFor={`timeslot-vote-dropdown-${timeslot.id}`}>Votes: </label>
+                <select id={`timeslot-vote-dropdown-${timeslot.id}`}>
+                    {timeslot.votes.map((vote, index) => (
+                        <option key={index} value={vote.contact}>
+                            {vote.contact} - {vote.preference}
+                        </option>
+                    ))}
+                </select>
                                 </div>
+                                
                                 </div>
+                                
                         )}
                     </li>
                 ))}
