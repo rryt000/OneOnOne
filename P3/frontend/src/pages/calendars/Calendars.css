@@ -183,3 +183,11 @@ footer {
     left: 0;
     bottom: 0;
 }
+
+.gold {
+    color: #A98A22;
+}
+
+.green {
+    color: skyblue !important;
+}
