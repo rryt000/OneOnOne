@@ -1,2 +1,2 @@
 source venv/bin/activate
-./OneOnOne/manage.py runserver
+OneOnOne/backend/OneOnOne/manage.py runserver
