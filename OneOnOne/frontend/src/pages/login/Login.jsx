@@ -82,7 +82,9 @@ const LoginPage = () => {
                     <label className="text-secondary mb-1" htmlFor="passwordInput">Password</label>
                     <input type="password" className="form-control" id="passwordInput" name="password" placeholder="Enter Password" value={input.password} onChange={handleInput} required />
                   </div>
-                  <button type="submit" className="btn btn-primary w-100 mt-3">Log In</button>
+                  <div className="d-flex justify-content-center align-items-center mt-3">
+                    <button type="submit" className="btn btn-primary w-100 drop-margin">Log In</button>
+                  </div>
                   <div className="d-flex justify-content-center align-items-center mt-2">
                     <p className="text-secondary">Need an account?</p>&nbsp;<Link to="/register" className="text-primary">Register</Link>
                   </div>

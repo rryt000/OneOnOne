@@ -160,3 +160,7 @@ p {
     color: var(--action);
 }
 
+.drop-margin {
+    margin: 0 !important;
+}
+

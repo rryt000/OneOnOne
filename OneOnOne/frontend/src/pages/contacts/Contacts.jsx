@@ -223,7 +223,7 @@ const ContactsPage = () => {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                     />
-                    <button className="btn btn-primary" type="button" onClick={handleSubmit} >Sumbit</button>
+                    <button className="btn btn-primary" type="button" onClick={handleSubmit} >Submit</button>
                 </div>
                 {message && <div className={`alert ${isError ? 'alert-danger' : 'alert-success'}`}>{message}</div>}
                 <div style={{ overflowX: 'auto' }}>
