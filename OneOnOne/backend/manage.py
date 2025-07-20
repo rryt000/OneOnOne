@@ -3,10 +3,6 @@
 import os
 import sys
 
-# Add backend/OneOnOne to the Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'OneOnOne'))
-sys.path.append(os.path.dirname(__file__))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def main():
     """Run administrative tasks."""
