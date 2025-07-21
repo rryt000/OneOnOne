@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
 import './ContactView.css';
@@ -19,29 +19,7 @@ const ContactView = ({ calendar, token, isOwner }) => {
     const [votesData, setVotesData] = useState([]);
 
 
-
-    useEffect(() => {
-        if (calendar && token) {    
-            fetchContacts();
-            fetchTimeslots();
-        }
-    }, [calendar, token, fetchContacts, fetchTimeslots]);
-
-
-    if (!calendar) return <p>Loading...</p>;
-
-    const formatDateTime = (dateString) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
-    };
-
-    const fetchContacts = async () => {
+    const fetchContacts = useCallback(async () => {
         try {
             const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -50,9 +28,10 @@ const ContactView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching contacts:', error);
         }
-    };
+    }, [backendUrl, calendar.id, token]);
 
-    const fetchTimeslots = async () => {
+
+    const fetchTimeslots = useCallback(async () => {
         try {
             const response1 = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslots/`,
                 { headers: { Authorization: `Bearer ${token}` } });
@@ -82,8 +61,31 @@ const ContactView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching timeslots:', error);
         }
+    }, [backendUrl, calendar.id, token, auth.user.username]);
+
+
+    useEffect(() => {
+        if (calendar && token) {    
+            fetchContacts();
+            fetchTimeslots();
+        }
+    }, [calendar, token, fetchContacts, fetchTimeslots]);
+
+
+    if (!calendar) return <p>Loading...</p>;
+
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
     
+
     const getUserPreferenceForTimeslot = (timeslotId) => {
         // Find the corresponding vote for the timeslot
         const username = auth.user.username

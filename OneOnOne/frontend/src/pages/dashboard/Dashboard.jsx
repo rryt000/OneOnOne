@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import { useAuth } from "../../hooks/AuthProvider";
@@ -21,7 +21,7 @@ const Dashboard = () => {
 
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
-    const fetchNotifications = async () => {
+    const fetchNotifications = useCallback(async () => {
         try {
             const response = await axios.get('http://localhost:8000/calendars/notifications/', {
             headers: { Authorization: `Bearer ${token}` }
@@ -30,9 +30,9 @@ const Dashboard = () => {
         } catch (error) {
             console.error('Error fetching notifications:', error);
         }
-    };
+    }, [token]);
 
-    const fetchRequests = async () => {
+    const fetchRequests = useCallback(async () => {
         try {
             const response = await axios.get('http://127.0.0.1:8000/contacts/contact-requests/', {
                 headers: {
@@ -43,7 +43,7 @@ const Dashboard = () => {
         } catch (error) {
             console.error("Error fetching requests:", error);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchNotifications();

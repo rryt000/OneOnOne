@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
@@ -34,7 +34,7 @@ const FinalView = ({ calendar, token, isOwner }) => {
     // };
     // This is the Old formatDateTime, Here just incase bugs arise from the above implementation
 
-    const fetchContacts = async () => {
+    const fetchContacts = useCallback(async () => {
         try {
             const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -43,9 +43,9 @@ const FinalView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching contacts:', error);
         }
-    };
+    }, [backendUrl, calendar.id, token]);
 
-    const fetchFinalizedTimeslot = async () => {
+    const fetchFinalizedTimeslot = useCallback(async () => {
         try {
             // This URL is an example; adjust it as needed to match your API endpoint for fetching the finalized timeslot
             const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/finalization/`, {
@@ -55,7 +55,7 @@ const FinalView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching finalized timeslot:', error);
         }
-    };
+    },[backendUrl, calendar.id, token]);
 
     const handleDeleteCalendar = async () => {
         try {

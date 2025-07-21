@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './OwnerView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -49,7 +49,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     };
 
-    const fetchContacts = async () => {
+    const fetchContacts = useCallback(async () => {
         try {
             const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/`,
                 { headers: { Authorization: `Bearer ${token}` } });
@@ -57,7 +57,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching contacts:', error);
         }
-    };
+    }, [backendUrl, calendar.id, token]);
 
     const [visibleVotesTimeslotId, setVisibleVotesTimeslotId] = useState(null);
 
@@ -69,8 +69,10 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         }
     };
 
+    void toggleVotesDisplay;
 
-    const fetchTimeslots = async () => {
+
+    const fetchTimeslots = useCallback(async () => {
         setIsLoading(true);
         try {
             const timeslotsResponse = await axios.get(`${backendUrl}/calendars/${calendar.id}/timeslots/`, { headers: { Authorization: `Bearer ${token}` } });
@@ -94,11 +96,11 @@ const OwnerView = ({ calendar, token, isOwner }) => {
             setTimeslots([]); 
         }
         setIsLoading(false);
-    };
+    }, [backendUrl, calendar.id, token, ]);
     
     
 
-    const fetchPossibleContacts = async () => {
+    const fetchPossibleContacts = useCallback(async () => {
         try {
           const response = await axios.get(`${backendUrl}/calendars/${calendar.id}/contacts/detail/`, 
           {
@@ -111,14 +113,14 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         } catch (error) {
           console.error('Error fetching contacts:', error);
         }
-    };
+    }, [backendUrl, calendar.id, token]);
 
 
     useEffect(() => {
         fetchPossibleContacts();
         fetchContacts();
         fetchTimeslots();
-    }, [calendar.id, token]);
+    }, [calendar.id, token, fetchPossibleContacts, fetchContacts, fetchTimeslots]);
 
     const handleFinalizeClick = async (timeslot) => {
         try {
@@ -126,6 +128,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                 {   timeslot_id : timeslot.timeslot_id},
                 {   headers: { Authorization: `Bearer ${token}` } });
             // navigate("/calendars/");
+            void response;
 			setIsFinalized(true);
         } catch (error) {
             console.error('Error finalizing calendar:', error)
@@ -182,6 +185,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
                 { contact_username: contactUsername },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+            void response;
             setContactUsername('');
             await fetchContacts(); // Re-fetch contacts
             await fetchPossibleContacts(); // If you want to update possible contacts list as well
