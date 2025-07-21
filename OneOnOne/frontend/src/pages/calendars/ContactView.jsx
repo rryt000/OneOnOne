@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import './ContactView.css';
 import { useAuth } from "../../hooks/AuthProvider";
@@ -12,8 +11,8 @@ const ContactView = ({ calendar, token, isOwner }) => {
     const auth = useAuth();
     const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
-    const [editingTimeslotId, setEditingTimeslotId] = useState(null);
-    const [updateEditingTimeslotId, setUpdateEditingTimeslotId] = useState(null);
+    const [, setEditingTimeslotId] = useState(null);
+    const [, setUpdateEditingTimeslotId] = useState(null);
     const [editingTimeslot, setEditingTimeslot] = useState({});
     const [updateEditingTimeslot, setUpdateEditingTimeslot] = useState({});
     const [otherTimeslots, setOtherTimeslots] = useState([]);

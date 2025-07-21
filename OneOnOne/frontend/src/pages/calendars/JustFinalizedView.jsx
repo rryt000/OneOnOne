@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import './OwnerView.css';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 
 const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
     const auth = useAuth();

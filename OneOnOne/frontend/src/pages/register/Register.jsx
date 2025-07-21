@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Register.css'; // Ensure this matches the correct path to your CSS file
 import { useAuth } from "../../hooks/AuthProvider"; // Adjust the path as necessary
