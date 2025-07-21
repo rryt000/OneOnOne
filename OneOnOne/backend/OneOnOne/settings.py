@@ -14,6 +14,8 @@ from pathlib import Path
 from datetime import timedelta
 import os
 import dj_database_url
+import logging
+from django.db import connection
 
 
 
@@ -159,3 +161,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+logger = logging.getLogger("django")
+logger.warning(f"🔍 DB Engine: {connection.settings_dict['ENGINE']}")
+logger.warning(f"🔍 DB Name: {connection.settings_dict['NAME']}")
+logger.warning(f"🔍 DB Host: {connection.settings_dict['HOST']}")
