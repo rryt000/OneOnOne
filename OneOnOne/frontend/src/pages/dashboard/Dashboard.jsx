@@ -48,7 +48,7 @@ const Dashboard = () => {
     useEffect(() => {
         fetchNotifications();
         fetchRequests();
-    }, [token]);
+    }, [token, fetchNotifications, fetchRequests]);
 
     const handleNotificationClick = async (notification) => {
         try {

@@ -25,7 +25,7 @@ const ContactView = ({ calendar, token, isOwner }) => {
             fetchContacts();
             fetchTimeslots();
         }
-    }, [calendar, token]);
+    }, [calendar, token, fetchContacts, fetchTimeslots]);
 
 
     if (!calendar) return <p>Loading...</p>;

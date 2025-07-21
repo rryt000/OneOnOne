@@ -71,7 +71,7 @@ const FinalView = ({ calendar, token, isOwner }) => {
     useEffect(() => {
         fetchContacts();
         fetchFinalizedTimeslot();
-    }, [calendar.id, token]);
+    }, [calendar.id, token, fetchContacts, fetchFinalizedTimeslot]);
 
 const createGoogleCalendarLink = (timeslot) => {
         const start = new Date(timeslot.start_date_time).toISOString();

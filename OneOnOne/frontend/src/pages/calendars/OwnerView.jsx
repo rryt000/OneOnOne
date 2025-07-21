@@ -9,11 +9,11 @@ import JustFinalizedView from './JustFinalizedView';
 
 
 const OwnerView = ({ calendar, token, isOwner }) => {
-    const [loadingTimeslots, setLoadingTimeslots] = useState(true);
+    const [loadingTimeslots, ] = useState(true);
     const [timeslotError, setTimeslotError] = useState(null);
 
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [, setIsLoading] = useState(false);
+    const [, setError] = useState(null);
     const navigate = useNavigate();
     const [editingTimeslotId, setEditingTimeslotId] = useState(null);
     const [editingTimeslot, setEditingTimeslot] = useState({});
