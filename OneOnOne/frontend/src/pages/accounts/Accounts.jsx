@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'; // Make sure Bootstrap CSS is imp
 import './Accounts.css'; // Adjust the path to your CSS file as necessary
 import { useAuth } from '../../hooks/AuthProvider';
 import axios from 'axios';
+import { backendUrl } from '../../config';
 
 const AccountPage = () => {
   const auth = useAuth();
@@ -15,7 +16,7 @@ const AccountPage = () => {
     const fetchProfileData = async () => {
       try {
         const token = auth.token;
-        const response = await axios.get('http://127.0.0.1:8000/accounts/', {
+        const response = await axios.get(`${backendUrl}/accounts/`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -75,7 +76,7 @@ const AccountPage = () => {
     if (validateForm()) {
       try {
         const token = auth.token;
-        const response = await axios.put('http://127.0.0.1:8000/accounts/', formData, {
+        const response = await axios.put(`${backendUrl}/accounts/`, formData, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

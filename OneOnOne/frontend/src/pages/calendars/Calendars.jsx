@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 import './Calendars.css';
-import backendUrl from '../../config';
+import { backendUrl } from '../../config';
 
 const CalendarPage = () => {
   const auth = useAuth();

@@ -3,7 +3,7 @@ import axios from 'axios';
 import './OwnerView.css';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
-import backendUrl from '../../config';
+import { backendUrl, frontendUrl } from '../../config';
 
 const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
     // const navigate = useNavigate();
@@ -20,8 +20,8 @@ const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
 			  concatenatedContacts += ",";
 			}
 		}
-		// `http://localhost:3000/calendars/${calendar.id}`
-		const link = `http://localhost:3000/calendars/${calendar.id}`;
+		// `${frontendUrl}/calendars/${calendar.id}`
+		const link = `${frontendUrl}/calendars/${calendar.id}`;
 		const subject = encodeURIComponent(`Notification: Calendar ${calendar.name} has been finalized.`);
 		const body = encodeURIComponent(`Click this link, for sure absolutely safe, will take you to the calendar for quick access:\n\n${link}\n\nBest,\n${auth.user.username}`);
 		

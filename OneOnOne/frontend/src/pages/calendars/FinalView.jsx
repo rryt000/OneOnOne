@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import './FinalView.css';
 import { useAuth } from "../../hooks/AuthProvider";
-import backendUrl from '../../config';
+import { backendUrl } from '../../config';
 
 
 const FinalView = ({ calendar, token, isOwner }) => {

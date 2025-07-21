@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 import { useAuth } from "../../hooks/AuthProvider";
 import axios from 'axios';
+import { backendUrl } from '../../config';
  
  
 const Dashboard = () => {
@@ -23,7 +24,7 @@ const Dashboard = () => {
 
     const fetchNotifications = useCallback(async () => {
         try {
-            const response = await axios.get('http://localhost:8000/calendars/notifications/', {
+            const response = await axios.get(`${backendUrl}/calendars/notifications/`, {
             headers: { Authorization: `Bearer ${token}` }
             });
             setNotifications(response.data);
@@ -34,7 +35,7 @@ const Dashboard = () => {
 
     const fetchRequests = useCallback(async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8000/contacts/contact-requests/', {
+            const response = await axios.get(`${backendUrl}/contacts/contact-requests/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -52,7 +53,7 @@ const Dashboard = () => {
 
     const handleNotificationClick = async (notification) => {
         try {
-            await axios.delete(`http://localhost:8000/calendars/notifications/${notification.id}`, {
+            await axios.delete(`${backendUrl}/calendars/notifications/${notification.id}`, {
             headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -109,7 +110,7 @@ const Dashboard = () => {
           <>
             {notifications.map(notification => (
               <div
-                // to={`http://localhost:8000/calendars/${notification.calendar.id}`} // Use this if it's supposed to be a Link component
+                // to={`${backendUrl}/calendars/${notification.calendar.id}`} // Use this if it's supposed to be a Link component
                 className="list-group-item list-group-item-action"
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}

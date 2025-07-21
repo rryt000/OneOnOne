@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import { backendUrl } from "../config";
  
 const AuthContext = createContext();
  
@@ -20,7 +21,7 @@ const AuthProvider = ({ children }) => {
   // Handles user login
   const loginAction = async (data) => {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/accounts/login/", data);
+      const response = await axios.post(`${backendUrl}/accounts/login/`, data);
       const { user, access: token } = response.data;
 
       console.log(user);
@@ -48,7 +49,7 @@ const AuthProvider = ({ children }) => {
   // Function to handle user registration
   const registerAction = async (data) => {
     try {
-      await axios.post("http://127.0.0.1:8000/accounts/register/", data);
+      await axios.post(`${backendUrl}/accounts/register/`, data);
       // If registration is successful, automatically log the user in
       await loginAction({ username: data.username, password: data.password });
     } catch (err) {

@@ -4,6 +4,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Contacts.css'; // Make sure this path is correct
 import { useAuth } from '../../hooks/AuthProvider';
+import { backendUrl } from '../../config';
 
 const ContactsPage = () => {
     const [contacts, setContacts] = useState([]);
@@ -21,7 +22,7 @@ const ContactsPage = () => {
     useEffect(() => {
         const fetchContacts = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/contacts/contact-lists/', {
+                const response = await axios.get(`${backendUrl}/contacts/contact-lists/`, {
                     headers: {
                         Authorization: `Bearer ${auth.token}`,
                     },
@@ -38,7 +39,7 @@ const ContactsPage = () => {
 
         const fetchRequests = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/contacts/contact-requests/', {
+                const response = await axios.get(`${backendUrl}/contacts/contact-requests/`, {
                     headers: {
                         Authorization: `Bearer ${auth.token}`,
                     },
@@ -56,7 +57,7 @@ const ContactsPage = () => {
     }, [auth.token]);
 
     const handleSubmit = async (e) => {
-        const endpoint = 'http://127.0.0.1:8000/contacts/contact-requests/';
+        const endpoint = `${backendUrl}/contacts/contact-requests/`;
         const data = { 'receiver': username };
         try {
             const response = await axios.post(endpoint, data, {
@@ -96,7 +97,7 @@ const ContactsPage = () => {
             try {
                 // Assuming you need to send the contact's email as data for some reason
                 const data = { email: contactToDelete.email };
-                await axios.put(`http://127.0.0.1:8000/contacts/contact-lists/`, data, {
+                await axios.put(`${backendUrl}/contacts/contact-lists/`, data, {
                     headers: {
                         Authorization: `Bearer ${auth.token}`,
                     },
@@ -114,7 +115,7 @@ const ContactsPage = () => {
     const acceptRequest = async (requestId) => {
         try {
             const response = await axios.put(
-                `http://127.0.0.1:8000/contacts/contact-requests/`,
+                `${backendUrl}/contacts/contact-requests/`,
                 { id: requestId, action: 'accept' },
                 { headers: { Authorization: `Bearer ${auth.token}` } }
             );
@@ -137,7 +138,7 @@ const ContactsPage = () => {
     const rejectRequest = async (requestId) => {
         try {
             const response = await axios.put(
-                `http://127.0.0.1:8000/contacts/contact-requests/`,
+                `${backendUrl}/contacts/contact-requests/`,
                 { id: requestId, action: 'decline' },
                 { headers: { Authorization: `Bearer ${auth.token}` } }
             );

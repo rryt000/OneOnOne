@@ -5,7 +5,7 @@ import { useAuth } from "../../hooks/AuthProvider";
 import OwnerView from './OwnerView'; // Update the path as necessary
 import ContactView from './ContactView'; // Update the path as necessary
 import FinalView from './FinalView';
-import backendUrl from '../../config';
+import { backendUrl } from '../../config';
 
 const CalendarDetailPage = () => {
     const { token, user } = useAuth();

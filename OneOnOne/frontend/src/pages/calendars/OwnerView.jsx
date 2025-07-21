@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 import JustFinalizedView from './JustFinalizedView';
-import backendUrl from '../../config';
+import { backendUrl, frontendUrl } from '../../config';
 
 
 const OwnerView = ({ calendar, token, isOwner }) => {
@@ -280,8 +280,8 @@ const OwnerView = ({ calendar, token, isOwner }) => {
 			  concatenatedContacts += ",";
 			}
 		}
-		// `http://localhost:3000/calendars/${calendar.id}`
-		const link = `http://localhost:3000/calendars/${calendar.id}`;
+		// `${frontendUrl}/calendars/${calendar.id}`
+		const link = `${frontendUrl}/calendars/${calendar.id}`;
 		const subject = encodeURIComponent(`Reminder: Calendar ${calendar.name} requires your preference input.`);
 		const body = encodeURIComponent(`Click this link, for sure absolutely safe, will take you to the calendar for quick access:\n\n${link}\n\nBest,\n${auth.user.username}`);
 		

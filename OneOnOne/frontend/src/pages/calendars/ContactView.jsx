@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from "react-router-dom";
 import './ContactView.css';
 import { useAuth } from "../../hooks/AuthProvider";
-import backendUrl from '../../config';
+import { backendUrl } from '../../config';
 
 const ContactView = ({ calendar, token, isOwner }) => {
     void isOwner;
