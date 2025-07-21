@@ -2,7 +2,6 @@
 
 OneOnOne/.DS_Store
 
-*/*/*/migrations/
 */staticfiles
 
 venv/
