@@ -35,9 +35,9 @@ if not SECRET_KEY:
     raise ValueError("The DJANGO_SECRET_KEY environment variable is missing!")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['oneonone.onrender.com']
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost").split(",")
 
 
 # Application definition
