@@ -3,9 +3,10 @@ import axios from 'axios';
 import { Link } from "react-router-dom";
 import './ContactView.css';
 import { useAuth } from "../../hooks/AuthProvider";
+import backendUrl from '../../config';
 
 const ContactView = ({ calendar, token, isOwner }) => {
-    const backendUrl = 'http://localhost:8000'; 
+    void isOwner;
     const [contacts, setContacts] = useState([]);
     const [timeslots, setTimeslots] = useState([]);
     const auth = useAuth();
@@ -28,7 +29,7 @@ const ContactView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching contacts:', error);
         }
-    }, [backendUrl, calendar.id, token]);
+    }, [calendar.id, token]);
 
 
     const fetchTimeslots = useCallback(async () => {
@@ -61,7 +62,7 @@ const ContactView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching timeslots:', error);
         }
-    }, [backendUrl, calendar.id, token, auth.user.username]);
+    }, [calendar.id, token, auth.user.username]);
 
 
     useEffect(() => {

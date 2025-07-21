@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 import JustFinalizedView from './JustFinalizedView';
+import backendUrl from '../../config';
 
 
 const OwnerView = ({ calendar, token, isOwner }) => {
@@ -17,7 +18,6 @@ const OwnerView = ({ calendar, token, isOwner }) => {
     const navigate = useNavigate();
     const [editingTimeslotId, setEditingTimeslotId] = useState(null);
     const [editingTimeslot, setEditingTimeslot] = useState({});
-    const backendUrl = 'http://localhost:8000';
     const [contacts, setContacts] = useState([]);
     const [timeslots, setTimeslots] = useState([]);
     const [contactUsername, setContactUsername] = useState('');
@@ -57,7 +57,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching contacts:', error);
         }
-    }, [backendUrl, calendar.id, token]);
+    }, [calendar.id, token]);
 
     const [visibleVotesTimeslotId, setVisibleVotesTimeslotId] = useState(null);
 
@@ -96,7 +96,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
             setTimeslots([]); 
         }
         setIsLoading(false);
-    }, [backendUrl, calendar.id, token, ]);
+    }, [calendar.id, token, ]);
     
     
 
@@ -113,7 +113,7 @@ const OwnerView = ({ calendar, token, isOwner }) => {
         } catch (error) {
           console.error('Error fetching contacts:', error);
         }
-    }, [backendUrl, calendar.id, token]);
+    }, [calendar.id, token]);
 
 
     useEffect(() => {

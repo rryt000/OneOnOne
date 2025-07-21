@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
 import './Calendars.css';
+import backendUrl from '../../config';
 
 const CalendarPage = () => {
   const auth = useAuth();
@@ -11,7 +12,6 @@ const CalendarPage = () => {
   const [secondaryCalendars, setSecondaryCalendars] = useState([]);
   const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
 
-  const backendUrl = 'http://localhost:8000';
   const [newCalendarName, setNewCalendarName] = useState('');
   const [newCalendarComment, setNewCalendarComment] = useState('');
 

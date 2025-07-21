@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import './FinalView.css';
 import { useAuth } from "../../hooks/AuthProvider";
+import backendUrl from '../../config';
 
 
 const FinalView = ({ calendar, token, isOwner }) => {
     const navigate = useNavigate();
-    const backendUrl = 'http://localhost:8000';
     const [contacts, setContacts] = useState([]);
     const [finalizedTimeslot, setFinalizedTimeslot] = useState(null);
     const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
@@ -43,7 +43,7 @@ const FinalView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching contacts:', error);
         }
-    }, [backendUrl, calendar.id, token]);
+    }, [calendar.id, token]);
 
     const fetchFinalizedTimeslot = useCallback(async () => {
         try {
@@ -55,7 +55,7 @@ const FinalView = ({ calendar, token, isOwner }) => {
         } catch (error) {
             console.error('Error fetching finalized timeslot:', error);
         }
-    },[backendUrl, calendar.id, token]);
+    },[calendar.id, token]);
 
     const handleDeleteCalendar = async () => {
         try {

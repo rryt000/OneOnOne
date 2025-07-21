@@ -3,14 +3,13 @@ import axios from 'axios';
 import './OwnerView.css';
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthProvider";
+import backendUrl from '../../config';
 
 const JustFinalizedView = ({calendar, token, isOwner, contacts, user}) => {
     // const navigate = useNavigate();
     const [isNavCollapsed, setIsNavCollapsed] = useState(true); // State to handle navbar collapse
     const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
     const auth = useAuth();
-    const backendUrl = 'http://localhost:8000';
-
 
 
     const notifyFinalization = async () => {

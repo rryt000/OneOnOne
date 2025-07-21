@@ -5,11 +5,11 @@ import { useAuth } from "../../hooks/AuthProvider";
 import OwnerView from './OwnerView'; // Update the path as necessary
 import ContactView from './ContactView'; // Update the path as necessary
 import FinalView from './FinalView';
+import backendUrl from '../../config';
 
 const CalendarDetailPage = () => {
     const { token, user } = useAuth();
     const { calendarId } = useParams();
-    const backendUrl = 'http://localhost:8000';
 
     const [calendar, setCalendar] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
